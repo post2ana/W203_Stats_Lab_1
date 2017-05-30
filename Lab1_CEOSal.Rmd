@@ -1,7 +1,7 @@
 ---
 title: "Lab 1: Exploratory Analysis of CEO Salary Data"
 author: "Anamika Sinha, Asha Anju, Noah Randolph"
-date: "May 30, 2017"
+date: "June 3, 2017"
 output: pdf_document
 ---
 
