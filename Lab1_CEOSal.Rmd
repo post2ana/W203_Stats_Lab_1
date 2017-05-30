@@ -9,21 +9,60 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+# Introduction
 
 An exploratory analysis of CEO and company data was conducted to explore CEO salary, with a particular interest in answering the question of whether company performance is related to CEO salary.
 
 Exploratory data analysis techniques were used and will be presented with commentary on the findings. In general, CEO salary is treated as a response variable, while other datasets are treated as predictor variables.
 
-```{r car}
-library(car)
-```
+# Setup
 
+We will utilize the "car: Companion to Applied Regression" package in R and load it, as well as the data file of interest, here.
 ```{r load}
+library(car)
 load("ceo_w203.RData")
 ```
 
-## Begin mktval univariate analysis (REMOVE THIS HEADING)
+# Univariate Analyses
+
+We investigate the variables independently to first understand the types of data, their frequency distributions, and to observe any anomalies, apparent data errors, and missing values. The dataset describing college attendance will not be analyzed due to the small number of CEOs who did not attend college (<4%), as can be seen below. 
+```{r}
+CEO$college <- factor(CEO$college, labels = c("Did Not Attend College",
+                                              "Attended College"))
+summary(CEO$college)
+```
+
+
+## Univariate Analysis of Salary Data
+
+We start with the analysis of CEO Salary Data, our primary predictor variable of interest. We first examine the histogram of salary information.The individual salary amounts have been scaled to reflect the value in millions We have set the break points manually but the bin width is same as that obtained using Freedman and Diaconis rule.
+
+```{r}
+CEO$salary <- CEO$salary/1000
+hist(CEO$salary, breaks = seq(0,6,.2),
+     xaxt = "n",
+     main = "Histogram of CEO Salary Data",
+     xlab = "CEO Salary (in $ millions)")
+axis(1, seq(0,6,1))
+
+```
+
+Next we look at the summary statistics for the salary data.
+```{r}
+summary(CEO$salary)
+
+```
+
+The following observations are apparent from our analysis of CEO salaries:
+
+1. The distribution of CEO salaries is positively skewed with a peak around \$0.6 million and a maximum value of $5.299 million.
+2. Except the maximum value, all salaries are below \$3.0 million. Most of the salaries are below $2.0 million. 
+3. The distance of maximum value from the 3rd quartile value is more than the interquartile range, thus making the data point an outlier. 
+
+Further analysis of the data corresponding to this outlier salary is required. Eventhough the maximum salary is an outlier, there is no strong evidence to conclude that it should be removed from our analysis.
+
+## Univariate Analysis of Market Value
+
 Market value is commonly associated with company performance, which is of primary interest as it relates to CEO salary. Thus, we include an assessessment of its data in the variable, "mktval", univariately. First, a summary of the data: 
 
 ```{r summary}
@@ -33,37 +72,57 @@ summary(CEO$mktval)
 Market value data shows to be in terms of float values, including negative numbers. The range is vast, with the maximum value far greater than the values in the interquartile range. In fact, the mean is greater than not just the median, but also the 3rd quartile. Since a stock price cannot go below $0, and market value for public companies is composed of the sum of the values of each individual stock, any negative values should be scrutinized.
 
 ```{r subset market value}
-CEO$mktval[CEO$mktval < 0]
+CEO[CEO$mktval < 0, ]
 ```
 
-A subset of the market value data less than zero reveals that a coding error is apparent. The five values of "-1" likely represent data points that were unavailable for particular companies. Further analysis will be on a subset of the data excluding the five values of "-1".
+A subset of the data less than zero reveals that a coding error is apparent. The -1 values in both market value and profits likely represent data points that were unavailable for particular companies. Further analyses in this report will be on subsets of the data excluding the values of -1 for market value and profits.
 
 ```{r}
 cleanmktval <- subset(CEO$mktval, CEO$mktval > 0)
 ```
 
-Next, we create a histogram of the cleaned up market value data. The dataset is transformed by a factor of 1/10,000 to make for easier reading of the X-axis. The bins are set by the Freedman and Diaconis rule. We supply tick marks on the x-axis manually.
+Next, we create a histogram of the cleaned up market value data. The dataset is transformed by a factor of 1/10,000 to make for easier reading of the X-axis. The bins are set with even widths at a number of 20, which is an amount between two common rules, one of which is the square root of the number of data points, and the other is the Freedman and Diaconis rule.
  
 ```{r market value histogram}
 mktvalbillions <- cleanmktval/10000
-hist(mktvalbillions, breaks = "FD", main = "Histogram of Market Value",
-     xlab = "Market Value (end of 1990, in $ billions)", xaxt = "n")
-axis(1, c(0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5))
+hist(mktvalbillions, breaks = seq(0, 5, 0.25), 
+     main = "Histogram of Market Value",
+     xlab = "Market Value (end of 1990, in $ billions)")
 ```
 
 The histogram reveals the following characteristics:
 
-1. Market value is skewed toward the positive and frequencies drop steeply between $0 and $300 million, for a decaying profile of frequencies as market value increases.
+1. Market value is skewed toward the positive and frequencies drop steeply between \$250 million and $500 million, for a decaying profile of frequencies as market value increases.
 
 2. Although market value does not take on negative values, integer effects are not of concern due to the float type of data and its high dispersion.
 
-3. Most of the market values fall below $600 million.
+3. Most of the market values fall below $500 million.
 
-4. There is a large gap between highly dispersed data between roughly $2.7 billion and $4.3 billion.
+4. There is a large gap between highly dispersed data between roughly \$2.75 billion and $4.25 billion.
 
-Although the market values above $4 billion fall far outside of the bulk of the data, there is no strong evidence to conclude that they should be removed from the analysis as outliers.
+Although the market values between \$4 billion and $5 billion falls far outside of the bulk of the data, there is no strong evidence to conclude that they should be removed from the analysis as outliers.
 
-## Begin ceoten univariate analysis (REMOVE THIS HEADING)
+## Analysis of CEO Age Data
+
+We next examine the age of CEO's to understand the distribution and its features.
+
+```{r}
+summary(CEO$age)
+```
+
+```{r}
+hist(CEO$age, breaks = "FD",
+     main = "Histogram of CEO Age",
+     xlab = "Age of CEO")
+```
+
+The following observations are apparent from our analysis of age information:
+
+1. The ages cover a large range with a minimum age of 21 years and maximum age of 86 years.
+2. The distribution peaks peak around 55-60 years of age and have a slight negative skew. 
+3. 50% of the CEO's in the dataset have ages in a 10 year range between 51 and 61.25 years.
+
+## Univariate Analysis of CEO Tenure
 
 We next examine years of CEO tenure, which may relate to CEO salary as any normal salary typically grows with tenure. We manually set the cut points for our histogram to make 13 bins, which is roughly the square root of the number of data points.
 
@@ -71,6 +130,7 @@ We next examine years of CEO tenure, which may relate to CEO salary as any norma
 hist(CEO$ceoten, breaks = seq(0, 39, by=3), main = "Histogram of Years as CEO", xlab = "Years as CEO with Current Company", xaxt = "n")
 axis(1, seq(0, 39, by=3))
 ```
+
 The following observations are apparent in the histogram of CEO tenures:
 
 1. The lower bound is at zero years (indeed, negative years would not make sense in this context).
