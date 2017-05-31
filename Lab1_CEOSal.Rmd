@@ -145,7 +145,7 @@ summary(CEO$age)
 ```{r}
 hist(CEO$age, breaks = "FD",
      main = "Histogram of CEO Age",
-     xlab = "Age of CEO")
+     xlab = "Age of CEO (years)")
 ```
 
 The following observations are apparent from our analysis of age information:
