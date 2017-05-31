@@ -102,6 +102,38 @@ The histogram reveals the following characteristics:
 
 Although the market values between \$4 billion and $5 billion falls far outside of the bulk of the data, there is no strong evidence to conclude that they should be removed from the analysis as outliers.
 
+## Univariate Analysis of Company profits
+
+Next, we investigate company profits as it is also an indicator of comany performance.
+
+```{r}
+summary(CEO$profits)
+```
+
+
+```{r}
+hist(CEO$profits,
+     breaks = 20,
+     ylim = c(0,175),
+#    labels = T,
+     main = "Profits for Companies in 1990",
+     xlab = "Profit in millions(dollars)")
+```
+
+ 
+ Observations from : 
+
+1. Most companies have profits below 250 million. 
+
+2. The histogram has a slight positive skew due to the presence of some outliers.They seem to be pushing the mean to even beyond the 3rd quartile.
+The mean is much higher than the median value.
+
+3. 15 companies with negative profits is worth investigating. Since most of the profits is from zero to 250 million that bin is worth investigating.
+
+4. It will be interesting to see the salaries of CEOs with negative profit for 12 companies in 0 and -200 million range. We can ignore 5 values with profits == -1 
+for that analysis as the mkatval analysis suggests a coding error.
+
+
 ## Analysis of CEO Age Data
 
 We next examine the age of CEO's to understand the distribution and its features.
@@ -140,5 +172,68 @@ The following observations are apparent in the histogram of CEO tenures:
 3. CEO tenure frequencies peak in the lowest number of years and then mostly drop in a decaying form as the number of years increases.
 
 4. There is a gap in tenures from 30 to 33 years and a decrease from 15 to 18 years, but these are most likely due to dispersion of lower frequencies of higher year values.
+
+
+
+# Univariate analysis of Company tenure
+
+We analyzed the total number of years CEOs stayed with the 
+company including years before or after becoming CEO.
+
+```{r}
+summary(CEO$comten)
+```
+
+```{r}
+hist(CEO$comten, 
+#     labels = T,
+     ylim = c(0,40),
+     main = "Histogram of years in Company",
+     xlab = "Years"
+     )
+```
+
+Observations: 
+
+1.We see that there is almost a uniform spread of data
+across the number of years from zero to forty years. 
+
+2.There is a bit of spike at 30-35 years and 1 outlier in the 55 to 60 years. 
+
+3.Overall, company tenure does not seem to have an impact on the output.
+
+
+## Univariate analysis of grad(CEOs with graduate degrees)
+
+Since grad is a categorical variable, we create a factor variable
+and assign levels of GRAD and "Non_Grad" to it.
+
+```{r}
+CEO$grad <- factor(CEO$grad,
+                      levels = c("0", "1"),
+                      labels = c("Not_Grad", "Grad"))
+#CEO$grad
+
+```
+
+```{r}
+plot(CEO$grad,
+     main = "Count of grad versus non grad CEOs")
+```
+
+```{r}
+summary(CEO$grad)
+```
+
+## Observations:
+
+1. We see that the number of CEOs without a graduate degree is 
+pretty comparable to the number of CEOs with graduate degree.
+
+2. This means that the data is pretty well distributed and graduate degree
+should not be having a huge impact on the outcome. 
+
+
+
 
 
