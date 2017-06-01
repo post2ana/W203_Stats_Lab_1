@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 An exploratory analysis of CEO and company data was conducted to explore CEO salary, with a particular interest in answering the question of whether company performance is related to CEO salary.
 
-Exploratory data analysis techniques were used and will be presented with commentary on the findings. In general, CEO salary is treated as a response variable, while other datasets are treated as predictor variables.
+Exploratory data analysis techniques were used and will be presented with commentary on the findings. We first explore data in univariate fashion, followed by multivariate analyses selected for there contribution to the exploration of CEO salary. In general, CEO salary is treated as a response variable, while other datasets are treated as predictor variables.
 
 # Setup
 
@@ -41,8 +41,8 @@ We start with the analysis of CEO Salary Data, our primary predictor variable of
 CEO$salary <- CEO$salary/1000
 hist(CEO$salary, breaks = seq(0,6,.2),
      xaxt = "n",
-     main = "Histogram of CEO Salary Data",
-     xlab = "CEO Salary (in $ millions)")
+     main = "Histogram of CEO Salary",
+     xlab = "CEO Salary (million dollars)")
 axis(1, seq(0,6,1))
 
 ```
@@ -81,13 +81,13 @@ A subset of the data less than zero reveals that a coding error is apparent. The
 cleanmktval <- subset(CEO$mktval, CEO$mktval > 0)
 ```
 
-Next, we create a histogram of the cleaned up market value data. The dataset is transformed by a factor of 1/10,000 to make for easier reading of the X-axis. The bins are set with even widths at a number of 20, which is an amount between two common rules, one of which is the square root of the number of data points, and the other is the Freedman and Diaconis rule.
+Next, we create a histogram of the cleaned up market value data. The dataset is transformed by a factor of 1/1,000 to make for easier reading of the X-axis. The bins are set with even widths at a number of 20, which is an amount between two common rules, one of which is the square root of the number of data points, and the other is the Freedman and Diaconis rule.
  
 ```{r market value histogram}
-mktvalbillions <- cleanmktval/10000
-hist(mktvalbillions, breaks = seq(0, 5, 0.25), 
+mktvalbillions <- cleanmktval/1000
+hist(mktvalbillions, breaks = seq(0, 50, 2.5), 
      main = "Histogram of Market Value",
-     xlab = "Market Value (end of 1990, in $ billions)")
+     xlab = "Market Value, end of 1990 (billion dollars)")
 ```
 
 The histogram reveals the following characteristics:
@@ -116,8 +116,8 @@ hist(CEO$profits,
      breaks = 20,
      ylim = c(0,175),
 #    labels = T,
-     main = "Profits for Companies in 1990",
-     xlab = "Profit in millions(dollars)")
+     main = "Histogram of Company Profit",
+     xlab = "Profit in 1990 (million dollars)")
 ```
 
  
@@ -134,7 +134,7 @@ The mean is much higher than the median value.
 for that analysis as the mkatval analysis suggests a coding error.
 
 
-## Analysis of CEO Age Data
+## Univariate Analysis of CEO Age
 
 We next examine the age of CEO's to understand the distribution and its features.
 
@@ -145,7 +145,7 @@ summary(CEO$age)
 ```{r}
 hist(CEO$age, breaks = "FD",
      main = "Histogram of CEO Age",
-     xlab = "Age of CEO")
+     xlab = "Age (years)")
 ```
 
 The following observations are apparent from our analysis of age information:
@@ -188,7 +188,7 @@ summary(CEO$comten)
 hist(CEO$comten, 
 #     labels = T,
      ylim = c(0,40),
-     main = "Histogram of years in Company",
+     main = "Histogram of Years in Company",
      xlab = "Years"
      )
 ```
@@ -203,7 +203,7 @@ across the number of years from zero to forty years.
 3.Overall, company tenure does not seem to have an impact on the output.
 
 
-## Univariate analysis of grad(CEOs with graduate degrees)
+## Univariate analysis of grad (CEOs with graduate degrees)
 
 Since grad is a categorical variable, we create a factor variable
 and assign levels of GRAD and "Non_Grad" to it.
@@ -233,6 +233,23 @@ pretty comparable to the number of CEOs with graduate degree.
 2. This means that the data is pretty well distributed and graduate degree
 should not be having a huge impact on the outcome. 
 
+
+# Multivariate Analyses
+
+Now that we understand the type and general nature of the data in each variable, we turn to multivariate analyses to begin to answer the question of whether CEO salary is related to company performace.
+
+## Multivariate Analysis of Market Value Versus CEO Salary
+
+Market value is plotted against CEO salary as it is one measure of company performance. We are interested in seeing the degree to which the level of CEO salary can at all be related to the market value of that CEO's company.
+
+We don't want to include the -1 values found in the univariate analysis of market values. Conveniently, we plot the $\log_{10}$ of market value, so the -1 values and their associated salary data do not appear on the plot, though R will give a warning that NaNs are produced.
+
+```{r}
+plot(log10(CEO$mktval), CEO$salary, main = "Market Value Versus CEO Salary", 
+     xlab = expression(paste(Log[10], 
+                             " of Market Value, end of 1990 (million dollars)")), 
+     ylab = "Salary (million dollars)")
+```
 
 
 
