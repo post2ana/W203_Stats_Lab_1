@@ -23,6 +23,15 @@ library(car)
 load("ceo_w203.RData")
 ```
 
+# Initial Exploration
+
+```{r}
+str(CEO)
+
+summary(CEO)
+```
+
+
 # Univariate Analyses
 
 We investigate the variables independently to first understand the types of data, their frequency distributions, and to observe any anomalies, apparent data errors, and missing values. The dataset describing college attendance will not be analyzed due to the small number of CEOs who did not attend college (<4%), as can be seen below. 
