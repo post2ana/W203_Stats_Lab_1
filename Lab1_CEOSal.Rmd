@@ -23,18 +23,37 @@ library(car)
 load("ceo_w203.RData")
 ```
 
-# Initial Exploration
+# Exploratory Analysis
 
+To get an initial understanding of the dataset, we'll look at the structure of its data frame and a summary of its variables.
 ```{r}
 str(CEO)
-
 summary(CEO)
 ```
 
+Now we have an idea of the size of our dataset (184 observations) and the scale of each variable. The data appears to be all integers. We can see that college and grad appear to be variables of just 0 and 1 outcomes, so it will be useful to convert those to factors for labeling. Both profits and market value (mktval) have negative values.
 
-# Univariate Analyses
+Given that we are most interested in company performance and CEO salary, market value and profits appear to be our primary variables of interest, along with salary of course. The rest of which are secondary variables that could contribute to a better understanding of the primary relatiionships.
 
-We investigate the variables independently to first understand the types of data, their frequency distributions, and to observe any anomalies, apparent data errors, and missing values. The dataset describing college attendance will not be analyzed due to the small number of CEOs who did not attend college (<4%), as can be seen below. 
+Given the large number of variables, scatterplot matrices are printed below to provide an overview of relationships between variables and identify areas of interest.
+
+```{r}
+scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$age + CEO$ceoten,
+                  data = CEO, diagonal = "histogram")
+```
+
+In the upper diagonal half of the above matrix, it appears that the two company performance variables, profits and market value, both show a positive trend against CEO salary, although the data for both appear to be highly clustered at the low end. The secondary CEO age variable does not appear to have a strong influence on profits and market value, but there do appear to be slighter more high values to the right of the median age. The secondary variable CEO tenure (ceoten) looks to have higher values of profits and market value clustered at the low end of tenure. 
+
+```{r}
+scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$comten, data = CEO,
+                  diagonal = "histogram")
+```
+
+In the upper diagonal half of the matrix above, the secondary variable company tenure (comten) appears to have slight positive relationships between profits and market value. Salary appears to be fairly evenly distributed across the span of company tenures.
+
+## Univariate Analyses
+
+We investigate the variables independently to understand their frequency distributions and to observe any anomalies, apparent data errors, and missing values. The dataset describing college attendance will not be analyzed due to the small number of CEOs who did not attend college (<4%), as can be seen below. 
 ```{r}
 CEO$college <- factor(CEO$college, labels = c("Did Not Attend College",
                                               "Attended College"))
@@ -42,24 +61,21 @@ summary(CEO$college)
 ```
 
 
-## Univariate Analysis of Salary Data
+### Univariate Analysis of Salary Data
 
 We start with the analysis of CEO Salary Data, our primary predictor variable of interest. We first examine the histogram of salary information.The individual salary amounts have been scaled to reflect the value in millions We have set the break points manually but the bin width is same as that obtained using Freedman and Diaconis rule.
 
 ```{r}
-CEO$salary <- CEO$salary/1000
-hist(CEO$salary, breaks = seq(0,6,.2),
+hist(CEO$salary/1000, breaks = seq(0,6,.2),
      xaxt = "n",
      main = "Histogram of CEO Salary",
      xlab = "CEO Salary (million dollars)")
 axis(1, seq(0,6,1))
-
 ```
 
 Next we look at the summary statistics for the salary data.
 ```{r}
 summary(CEO$salary)
-
 ```
 
 The following observations are apparent from our analysis of CEO salaries:
@@ -70,7 +86,7 @@ The following observations are apparent from our analysis of CEO salaries:
 
 Further analysis of the data corresponding to this outlier salary is required. Eventhough the maximum salary is an outlier, there is no strong evidence to conclude that it should be removed from our analysis.
 
-## Univariate Analysis of Market Value
+### Univariate Analysis of Market Value
 
 Market value is commonly associated with company performance, which is of primary interest as it relates to CEO salary. Thus, we include an assessessment of its data in the variable, "mktval", univariately. First, a summary of the data: 
 
@@ -78,7 +94,7 @@ Market value is commonly associated with company performance, which is of primar
 summary(CEO$mktval)
 ```
 
-Market value data shows to be in terms of float values, including negative numbers. The range is vast, with the maximum value far greater than the values in the interquartile range. In fact, the mean is greater than not just the median, but also the 3rd quartile. Since a stock price cannot go below $0, and market value for public companies is composed of the sum of the values of each individual stock, any negative values should be scrutinized.
+The market value range is vast, with the maximum value far greater than the values in the interquartile range. In fact, the mean is greater than not just the median, but also the 3rd quartile. Since a stock price cannot go below $0, and market value for public companies is composed of the sum of the values of each individual stock, any negative values should be scrutinized.
 
 ```{r subset market value}
 CEO[CEO$mktval < 0, ]
@@ -87,13 +103,13 @@ CEO[CEO$mktval < 0, ]
 A subset of the data less than zero reveals that a coding error is apparent. The -1 values in both market value and profits likely represent data points that were unavailable for particular companies. Further analyses in this report will be on subsets of the data excluding the values of -1 for market value and profits.
 
 ```{r}
-cleanmktval <- subset(CEO$mktval, CEO$mktval > 0)
+cleanCEO <- subset(CEO, CEO$mktval > 0)
 ```
 
 Next, we create a histogram of the cleaned up market value data. The dataset is transformed by a factor of 1/1,000 to make for easier reading of the X-axis. The bins are set with even widths at a number of 20, which is an amount between two common rules, one of which is the square root of the number of data points, and the other is the Freedman and Diaconis rule.
  
 ```{r market value histogram}
-mktvalbillions <- cleanmktval/1000
+mktvalbillions <- cleanCEO$mktval/1000
 hist(mktvalbillions, breaks = seq(0, 50, 2.5), 
      main = "Histogram of Market Value",
      xlab = "Market Value, end of 1990 (billion dollars)")
@@ -103,7 +119,7 @@ The histogram reveals the following characteristics:
 
 1. Market value is skewed toward the positive and frequencies drop steeply between \$250 million and $500 million, for a decaying profile of frequencies as market value increases.
 
-2. Although market value does not take on negative values, integer effects are not of concern due to the float type of data and its high dispersion.
+2. Although market value does not take on negative values, integer effects are not of concern due to its high dispersion.
 
 3. Most of the market values fall below $500 million.
 
@@ -111,7 +127,7 @@ The histogram reveals the following characteristics:
 
 Although the market values between \$4 billion and $5 billion falls far outside of the bulk of the data, there is no strong evidence to conclude that they should be removed from the analysis as outliers.
 
-## Univariate Analysis of Company profits
+### Univariate Analysis of Company profits
 
 Next, we investigate company profits as it is also an indicator of comany performance.
 
@@ -130,20 +146,20 @@ hist(CEO$profits,
 ```
 
  
- Observations from : 
+ Observations of company profit: 
 
-1. Most companies have profits below 250 million. 
+1. Most companies have profits below $250 million. 
 
 2. The histogram has a slight positive skew due to the presence of some outliers.They seem to be pushing the mean to even beyond the 3rd quartile.
 The mean is much higher than the median value.
 
 3. 15 companies with negative profits is worth investigating. Since most of the profits is from zero to 250 million that bin is worth investigating.
 
-4. It will be interesting to see the salaries of CEOs with negative profit for 12 companies in 0 and -200 million range. We can ignore 5 values with profits == -1 
-for that analysis as the mkatval analysis suggests a coding error.
+4. It will be interesting to see the salaries of CEOs with negative profit for the 12 companies in 0 and -200 million range. We can ignore the 5 values with profits of -1 
+for that analysis, as the univariate market value analysis above suggests a coding error.
 
 
-## Univariate Analysis of CEO Age
+### Univariate Analysis of CEO Age
 
 We next examine the age of CEO's to understand the distribution and its features.
 
@@ -163,7 +179,7 @@ The following observations are apparent from our analysis of age information:
 2. The distribution peaks peak around 55-60 years of age and have a slight negative skew. 
 3. 50% of the CEO's in the dataset have ages in a 10 year range between 51 and 61.25 years.
 
-## Univariate Analysis of CEO Tenure
+### Univariate Analysis of CEO Tenure
 
 We next examine years of CEO tenure, which may relate to CEO salary as any normal salary typically grows with tenure. We manually set the cut points for our histogram to make 13 bins, which is roughly the square root of the number of data points.
 
@@ -184,7 +200,7 @@ The following observations are apparent in the histogram of CEO tenures:
 
 
 
-# Univariate analysis of Company tenure
+### Univariate analysis of Company tenure
 
 We analyzed the total number of years CEOs stayed with the 
 company including years before or after becoming CEO.
@@ -212,7 +228,7 @@ across the number of years from zero to forty years.
 3.Overall, company tenure does not seem to have an impact on the output.
 
 
-## Univariate analysis of grad (CEOs with graduate degrees)
+### Univariate analysis of grad (CEOs with graduate degrees)
 
 Since grad is a categorical variable, we create a factor variable
 and assign levels of GRAD and "Non_Grad" to it.
@@ -220,21 +236,19 @@ and assign levels of GRAD and "Non_Grad" to it.
 ```{r}
 CEO$grad <- factor(CEO$grad,
                       levels = c("0", "1"),
-                      labels = c("Not_Grad", "Grad"))
-#CEO$grad
-
+                      labels = c("Non-Grad", "Grad"))
 ```
 
 ```{r}
 plot(CEO$grad,
-     main = "Count of grad versus non grad CEOs")
+     main = "Count of grad versus non-grad CEOs")
 ```
 
 ```{r}
 summary(CEO$grad)
 ```
 
-## Observations:
+Observations:
 
 1. We see that the number of CEOs without a graduate degree is 
 pretty comparable to the number of CEOs with graduate degree.
@@ -243,23 +257,28 @@ pretty comparable to the number of CEOs with graduate degree.
 should not be having a huge impact on the outcome. 
 
 
-# Multivariate Analyses
+## Multivariate Analyses
 
 Now that we understand the type and general nature of the data in each variable, we turn to multivariate analyses to begin to answer the question of whether CEO salary is related to company performace.
 
-## Multivariate Analysis of Market Value Versus CEO Salary
+### Multivariate Analysis of Market Value Versus CEO Salary
 
-Market value is plotted against CEO salary as it is one measure of company performance. We are interested in seeing the degree to which the level of CEO salary can at all be related to the market value of that CEO's company.
+Market value is plotted against CEO salary as it is one measure of company performance. We are interested in seeing the degree to which the level of CEO salary is related to the market value of that CEO's company.
 
-We don't want to include the -1 values found in the univariate analysis of market values. Conveniently, we plot the $\log_{10}$ of market value, so the -1 values and their associated salary data do not appear on the plot, though R will give a warning that NaNs are produced.
+Because of the high clustering of market value data seen in the scatterplot matrix of the initial exploration above, market value will be plotted using a $log_{10}$ scale. We exclude observations (whole rows of data) including the -1 values found in the univariate analysis of market values (though they would not plot on a log scale even if included).
 
 ```{r}
-plot(log10(CEO$mktval), CEO$salary, main = "Market Value Versus CEO Salary", 
+plot(log10(cleanCEO$mktval), cleanCEO$salary, main = "Market Value Versus CEO Salary", 
      xlab = expression(paste(Log[10], 
                              " of Market Value, end of 1990 (million dollars)")), 
      ylab = "Salary (million dollars)")
+abline(lm(cleanCEO$salary ~ log10(cleanCEO$mktval)))
 ```
 
+The plot above, with its linear regression line, shows a clear positive relationship between the two variables. The correlation, below, also shows that indeed some relation exists. However, the relationship cannot be said to be linear, since market value was plotted in $log_{10}$ scale. 
+```{r}
+cor(cleanCEO$mktval, cleanCEO$salary)
+```
 
 
 
