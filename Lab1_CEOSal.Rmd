@@ -283,7 +283,7 @@ The plot above, with its linear regression line, shows a clear positive relation
 cor(cleanCEO$mktval, cleanCEO$salary)
 ```
 
-### Relationship between mktval and Salary using boxplots
+### Relationship between market value and salary when data is grouped by market value.
 
 We group the data into different bins using market values and analyse the salary statistics for these bins.
 
@@ -307,12 +307,18 @@ plot(sort(unique(mktval_bins)),salary_median_by_mktval,
      ylab = "Median Salary in $ millions",
      xlab = "Marketvalue in $ billions")
 ```
+These plots further strengthen our assessment of the positive relationship between salary and market values (proxy for company performance).
 
 ## Analysis of Secondary Variables
 
-CEO Tenure, reported in years are continuous integer values from 0 to 37. Before analysing the influence of ceo tenure on the primary variables, we group them into bins for easier analysis.
+In this section, we analyse the impact of the remaining variables on our primary variables of interest viz. salary, market value and profits.
+
+### Effects of CEO Tenure
+
+The variable ceoten captures the number of years of service as CEO. The data is reported as integers and ranges from  0 to 37. Before analysing the influence of ceo tenure on the primary variables, we group them into bins for easier analysis.
 
 ```{r}
+# Creating a new variable ceoten_bins
 ceoten_bins <- cut(cleanCEO$ceoten,
                         c(0,3,6,10,20,40),
                         include.lowest = TRUE,right = FALSE, 
@@ -323,13 +329,11 @@ ceoten_bins <- cut(cleanCEO$ceoten,
 summary(ceoten_bins)
 ```
 
-We calculate the mean and median values for salary for each of these ceo tenure bins and see if there is any particular pattern visible.
-
+We calculate the mean and median salaries for each of these bins and plot them.
 
 ```{r}
 salary_mean_by_ceoten = by(cleanCEO$salary/1000, ceoten_bins, mean)
 salary_median_by_ceoten = by(cleanCEO$salary/1000, ceoten_bins, median)
-
 
 plot(sort(unique(ceoten_bins)),salary_mean_by_ceoten,
      main = "Plot of mean salary by CEO Tenure",
@@ -342,8 +346,9 @@ plot(sort(unique(ceoten_bins)),salary_median_by_ceoten,
      ylab = "Salary in $ millions")
 
 ```
+The mean and median salaries for CEO's is comparitively lower if their tenure is less than 6 years.
 
-Now we analyse if CEO Tenure and market values are related.
+Now we explore the relationship between market value and ceo tenure. 
 
 ```{r}
 ceoten_mean_by_mktval = by(cleanCEO$ceoten, mktval_bins, mean)
@@ -360,10 +365,11 @@ plot(sort(unique(mktval_bins)),ceoten_median_by_mktval,
      xlab = "Marketvalue in $ billions")
 ```
 
-Based on these graphs, CEO tenure does not play a significant role in explaining the difference in salary across various market value groups.
+For companies with market values 5 million or less, the tenure of CEO is similar. For companies with marketvalue above 5 million, there is a large variation in mean and median CEO tenure.
 
 ### Possible Company Tenure Effects
 
+We group the data into bins based on company tenure.
 ```{r}
 comten_bins <- cut(cleanCEO$comten,
                    c(0,10,20,30,40,60),
@@ -393,8 +399,8 @@ plot(sort(unique(comten_bins)),salary_median_by_comten,
      ylab = "Salary in $ millions")
 
 ```
+Surprisingly the median salary for CEO's with company tenure more than 40 years is much less than the rest of the group.
 
-Now we analyse if CEO Tenure and market values are related.
 
 ```{r}
 comten_mean_by_mktval = by(cleanCEO$comten, mktval_bins, mean)
@@ -410,7 +416,9 @@ plot(sort(unique(mktval_bins)),comten_median_by_mktval,
      ylab = "Company Tenure in years",
      xlab = "Marketvalue in $ billions")
 ```
+We see three different clusters in the plot of company tenure vs market value. For companies with market value > $10 billion, the median tenure is above 30 years. The companies with market value between 2 and 10 million have a median company tenure  around 26 years. For market value 2 million of less, the median tenure is closer to 20 years.
 
+This change in company tenure with market value does not successfully explain the change in salary levels with market value.
 
 ## Possible Age Effects
 
@@ -439,7 +447,7 @@ plot(sort(unique(age_bins)),salary_median_by_age,
 
 ```
 
-Now we analyse if CEO Tenure and market values are related.
+
 
 ```{r}
 age_mean_by_mktval = by(cleanCEO$age, mktval_bins, mean)
@@ -455,7 +463,9 @@ plot(sort(unique(mktval_bins)),age_median_by_mktval,
      ylab = "Age in years",
      xlab = "Marketvalue in $ billions")
 ```
-# Possible graduation effects
+Here again we see three different behaviors. Smaller firms (market value 5 billion or less) have a median age closer to 56 years, Firms with market value in 5-20 billion range have a median age closer to 61 years and the largest firms in our dataset have the lowest median age. 
+
+# Influence of education
 ```{r}
 grad_bins <- as.factor(cleanCEO$grad)
 
@@ -476,17 +486,36 @@ plot(sort(unique(grad_bins)),salary_median_by_grad,
      xlab = "Graduated or not",
      ylab = "Salary in $ millions")
 ```
+Education does not have a big impact of CEO salaries. The salaries of CEO's are similar irrespective of whether they graduated or not.
+
 ```{r}
-mktval_mean_by_grad = by(cleanCEO$mktval/1000, grad_bins, mean)
-mktval_median_by_grad = by(cleanCEO$mktval/1000, grad_bins, median)
+grad_count_by_mktval = by(cleanCEO$grad, mktval_bins, sum)
+total_count_by_mktval = by(cleanCEO$grad, mktval_bins, length)
 
-plot(sort(unique(grad_bins)),mktval_mean_by_grad,
-     main = "Plot of mean market value by education",
-     xlab = "Graduated or Not",
-     ylab = "Market value in $ millions")
+plot(sort(unique(mktval_bins)),(grad_count_by_mktval/total_count_by_mktval),
+     main = "Plot of % of CEO's who graduated grouped by market value",
+     ylab = "% of CEO's who graduated",
+     xlab = "Market value in $ millions")
 
-plot(sort(unique(grad_bins)),mktval_median_by_grad,
-     main = "Plot of median market value by education",
-     xlab = "Graduated or not",
-     ylab = "Market value in $ millions")
 ```
+More than 60% of the firms that has a market value over 2 million has a CEO who has graduated. The percentage is lower for smaller firms. Larger firms seem to choose CEO's who have graduated college. 
+
+## Confounding Effects
+
+We have used profits and market values as proxy for company performance. We have explored the relationship between these individual variables and salary. However the two variables themselves exhibit a positive relationship.
+
+```{r}
+profit_mean_by_mktval = by(cleanCEO$profits, mktval_bins, mean)
+profit_median_by_mktval = by(cleanCEO$profits, mktval_bins, median)
+
+plot(sort(unique(mktval_bins)),profit_mean_by_mktval,
+     main = "Plot of mean profit by market value",
+     ylab = "Mean profit in $ millions",
+     xlab = "Marketvalue in $ billions")
+
+plot(sort(unique(mktval_bins)),profit_median_by_mktval,
+     main = "Plot of median profit by market value",
+     ylab = "Median profit in $ millions",
+     xlab = "Marketvalue in $ billions")
+```
+Therefore a part of the positive relationship of Market value with Salary can be explained by profits.
