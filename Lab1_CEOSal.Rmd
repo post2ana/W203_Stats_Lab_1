@@ -63,7 +63,7 @@ summary(CEO$college)
 
 ### Univariate Analysis of Salary Data
 
-We start with the analysis of CEO Salary Data, our primary predictor variable of interest. We first examine the histogram of salary information.The individual salary amounts have been scaled to reflect the value in millions We have set the break points manually but the bin width is same as that obtained using Freedman and Diaconis rule.
+We start with the analysis of CEO Salary Data, our response variable of interest. We first examine the histogram of salary information.The individual salary amounts have been scaled to reflect the value in millions. We have set the break points manually but the bin width is same as that obtained using Freedman and Diaconis rule.
 
 ```{r}
 hist(CEO$salary/1000, breaks = seq(0,6,.2),
@@ -75,7 +75,7 @@ axis(1, seq(0,6,1))
 
 Next we look at the summary statistics for the salary data.
 ```{r}
-summary(CEO$salary)
+summary(CEO$salary/1000)
 ```
 
 The following observations are apparent from our analysis of CEO salaries:
@@ -184,7 +184,10 @@ The following observations are apparent from our analysis of age information:
 We next examine years of CEO tenure, which may relate to CEO salary as any normal salary typically grows with tenure. We manually set the cut points for our histogram to make 13 bins, which is roughly the square root of the number of data points.
 
 ```{r}
-hist(CEO$ceoten, breaks = seq(0, 39, by=3), main = "Histogram of Years as CEO", xlab = "Years as CEO with Current Company", xaxt = "n")
+hist(CEO$ceoten, breaks = seq(0, 39, by=3), 
+     main = "Histogram of Years as CEO", 
+     xlab = "Years as CEO with Current Company", 
+     xaxt = "n")
 axis(1, seq(0, 39, by=3))
 ```
 
@@ -280,5 +283,210 @@ The plot above, with its linear regression line, shows a clear positive relation
 cor(cleanCEO$mktval, cleanCEO$salary)
 ```
 
+### Relationship between mktval and Salary using boxplots
+
+We group the data into different bins using market values and analyse the salary statistics for these bins.
+
+```{r}
+mktval_bins <- cut(cleanCEO$mktval/1000,
+                        c(0,1,2,5,10,20,60))
+summary(mktval_bins)
+```
+
+```{r}
+salary_mean_by_mktval = by(cleanCEO$salary/1000, mktval_bins, mean)
+salary_median_by_mktval = by(cleanCEO$salary/1000, mktval_bins, median)
+
+plot(sort(unique(mktval_bins)),salary_mean_by_mktval,
+     main = "Plot of mean salary by market value",
+     ylab = "Mean Salary in $ millions",
+     xlab = "Marketvalue in $ billions")
+
+plot(sort(unique(mktval_bins)),salary_median_by_mktval,
+     main = "Plot of median salary by market value",
+     ylab = "Median Salary in $ millions",
+     xlab = "Marketvalue in $ billions")
+```
+
+## Analysis of Secondary Variables
+
+CEO Tenure, reported in years are continuous integer values from 0 to 37. Before analysing the influence of ceo tenure on the primary variables, we group them into bins for easier analysis.
+
+```{r}
+ceoten_bins <- cut(cleanCEO$ceoten,
+                        c(0,3,6,10,20,40),
+                        include.lowest = TRUE,right = FALSE, 
+                        labels = c("<3 yrs","3-6 yrs", "6-10 yrs", 
+                                   '10-20 yrs','20-40 yrs'))
+
+# Gives no of datapoints in each bin
+summary(ceoten_bins)
+```
+
+We calculate the mean and median values for salary for each of these ceo tenure bins and see if there is any particular pattern visible.
 
 
+```{r}
+salary_mean_by_ceoten = by(cleanCEO$salary/1000, ceoten_bins, mean)
+salary_median_by_ceoten = by(cleanCEO$salary/1000, ceoten_bins, median)
+
+
+plot(sort(unique(ceoten_bins)),salary_mean_by_ceoten,
+     main = "Plot of mean salary by CEO Tenure",
+     xlab = "CEO Tenure in years",
+     ylab = "Salary in $ millions")
+
+plot(sort(unique(ceoten_bins)),salary_median_by_ceoten,
+     main = "Plot of median salary by CEO Tenure",
+     xlab = "CEO Tenure in years",
+     ylab = "Salary in $ millions")
+
+```
+
+Now we analyse if CEO Tenure and market values are related.
+
+```{r}
+ceoten_mean_by_mktval = by(cleanCEO$ceoten, mktval_bins, mean)
+ceoten_median_by_mktval = by(cleanCEO$ceoten, mktval_bins, median)
+
+plot(sort(unique(mktval_bins)),ceoten_mean_by_mktval,
+     main = "Plot of mean CEO Tenure by market value",
+     ylab = "CEO Tenure in years",
+     xlab = "Marketvalue in $ billions")
+
+plot(sort(unique(mktval_bins)),ceoten_median_by_mktval,
+     main = "Plot of median CEO Tenure by market value",
+     ylab = "CEO Tenure in years",
+     xlab = "Marketvalue in $ billions")
+```
+
+Based on these graphs, CEO tenure does not play a significant role in explaining the difference in salary across various market value groups.
+
+### Possible Company Tenure Effects
+
+```{r}
+comten_bins <- cut(cleanCEO$comten,
+                   c(0,10,20,30,40,60),
+                   labels = c('<10', '10-20 yrs','20-30 yrs',
+                                   '30-40 yrs', '40-60 yrs'),
+                   right = FALSE)
+```
+
+```{r}
+# Gives no of datapoints in each bin
+summary(comten_bins)
+```
+
+```{r}
+salary_mean_by_comten = by(cleanCEO$salary/1000, comten_bins, mean)
+salary_median_by_comten = by(cleanCEO$salary/1000, comten_bins, median)
+
+
+plot(sort(unique(comten_bins)),salary_mean_by_comten,
+     main = "Plot of mean salary by Company Tenure",
+     xlab = "Company Tenure in years",
+     ylab = "Salary in $ millions")
+
+plot(sort(unique(comten_bins)),salary_median_by_comten,
+     main = "Plot of median salary by Company Tenure",
+     xlab = "Company Tenure in years",
+     ylab = "Salary in $ millions")
+
+```
+
+Now we analyse if CEO Tenure and market values are related.
+
+```{r}
+comten_mean_by_mktval = by(cleanCEO$comten, mktval_bins, mean)
+comten_median_by_mktval = by(cleanCEO$comten, mktval_bins, median)
+
+plot(sort(unique(mktval_bins)),comten_mean_by_mktval,
+     main = "Plot of mean Company Tenure by market value",
+     ylab = "Company Tenure in years",
+     xlab = "Marketvalue in $ billions")
+
+plot(sort(unique(mktval_bins)),comten_median_by_mktval,
+     main = "Plot of median Company Tenure by market value",
+     ylab = "Company Tenure in years",
+     xlab = "Marketvalue in $ billions")
+```
+
+
+## Possible Age Effects
+
+```{r}
+age_bins <- cut(cleanCEO$age, 
+                     c(0,40,50,60,70,90), 
+                     right = FALSE)
+
+# Gives number of datapoints in each age range
+summary(age_bins)
+```
+```{r}
+salary_mean_by_age = by(cleanCEO$salary/1000, age_bins, mean)
+salary_median_by_age = by(cleanCEO$salary/1000, age_bins, median)
+
+
+plot(sort(unique(age_bins)),salary_mean_by_age,
+     main = "Plot of mean salary by Age",
+     xlab = "Age in years",
+     ylab = "Salary in $ millions")
+
+plot(sort(unique(age_bins)),salary_median_by_age,
+     main = "Plot of median salary by Age",
+     xlab = "Age in years",
+     ylab = "Salary in $ millions")
+
+```
+
+Now we analyse if CEO Tenure and market values are related.
+
+```{r}
+age_mean_by_mktval = by(cleanCEO$age, mktval_bins, mean)
+age_median_by_mktval = by(cleanCEO$age, mktval_bins, median)
+
+plot(sort(unique(mktval_bins)),age_mean_by_mktval,
+     main = "Plot of mean Age by market value",
+     ylab = "Age in years",
+     xlab = "Marketvalue in $ billions")
+
+plot(sort(unique(mktval_bins)),age_median_by_mktval,
+     main = "Plot of median Age by market value",
+     ylab = "Age in years",
+     xlab = "Marketvalue in $ billions")
+```
+# Possible graduation effects
+```{r}
+grad_bins <- as.factor(cleanCEO$grad)
+
+summary(grad_bins)
+```
+
+```{r}
+salary_mean_by_grad = by(cleanCEO$salary/1000, grad_bins, mean)
+salary_median_by_grad = by(cleanCEO$salary/1000, grad_bins, median)
+
+plot(sort(unique(grad_bins)),salary_mean_by_grad,
+     main = "Plot of mean salary by education",
+     xlab = "Graduated or Not",
+     ylab = "Salary in $ millions")
+
+plot(sort(unique(grad_bins)),salary_median_by_grad,
+     main = "Plot of median salary by education",
+     xlab = "Graduated or not",
+     ylab = "Salary in $ millions")
+```
+```{r}
+mktval_mean_by_grad = by(cleanCEO$mktval/1000, grad_bins, mean)
+mktval_median_by_grad = by(cleanCEO$mktval/1000, grad_bins, median)
+
+plot(sort(unique(grad_bins)),mktval_mean_by_grad,
+     main = "Plot of mean market value by education",
+     xlab = "Graduated or Not",
+     ylab = "Market value in $ millions")
+
+plot(sort(unique(grad_bins)),mktval_median_by_grad,
+     main = "Plot of median market value by education",
+     xlab = "Graduated or not",
+     ylab = "Market value in $ millions")
+```
