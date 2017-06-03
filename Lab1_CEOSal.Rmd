@@ -129,36 +129,39 @@ Although the market values between \$4 billion and $5 billion falls far outside 
 
 ### Univariate Analysis of Company profits
 
-Next, we investigate company profits as it is also an indicator of comany performance.
+Next, we investigate company profits as it is also an indicator of company performance.
 
 ```{r}
-summary(CEO$profits)
+summary(cleanCEO$profits)
 ```
 
+We see that there are negative profits but the number of companies with 
+negative profits may be low as the first quartile value is still positive. There is a wide range in values with the maximum profit going as high as 13 times the 3rd quartile value. The mean being much higher than the median and even more than the third quartile values indicates the presence of a few very high profit values.
+
+For the purpose of further analysis, we will use the cleanCEO dataset created and explained above in market value analysis. (5 values with coding errors have been dropped as the value of profit is also -1 along with mkatval being -1) 
+
 
 ```{r}
-hist(CEO$profits,
+hist(cleanCEO$profits,
      breaks = 20,
      ylim = c(0,175),
-#    labels = T,
-     main = "Histogram of Company Profit",
-     xlab = "Profit in 1990 (million dollars)")
+     main = "Profits for Companies in 1990",
+     xlab = "Profits(millions dollars)")
 ```
 
+
+
  
- Observations of company profit: 
+ Observations from company profit histogram: 
 
 1. Most companies have profits below $250 million. 
 
 2. The histogram has a slight positive skew due to the presence of some outliers.They seem to be pushing the mean to even beyond the 3rd quartile.
 The mean is much higher than the median value.
 
-3. 15 companies with negative profits is worth investigating. Since most of the profits is from zero to 250 million that bin is worth investigating.
+3. 10 companies with negative profits is worth investigating. Since most of the profits is from zero to 250 million that bin is worth some further analysis. We may split this bucket in future to see if there are any trends.
 
-4. It will be interesting to see the salaries of CEOs with negative profit for the 12 companies in 0 and -200 million range. We can ignore the 5 values with profits of -1 
-for that analysis, as the univariate market value analysis above suggests a coding error.
-
-
+4. It will be interesting to see the salaries of CEOs with negative profit for 8 companies in 0 and -200 million range. 
 ### Univariate Analysis of CEO Age
 
 We next examine the age of CEO's to understand the distribution and its features.
@@ -205,19 +208,24 @@ The following observations are apparent in the histogram of CEO tenures:
 
 ### Univariate analysis of Company tenure
 
+
 We analyzed the total number of years CEOs stayed with the 
 company including years before or after becoming CEO.
 
 ```{r}
-summary(CEO$comten)
+summary(cleanCEO$comten)
 ```
 
+There is a wide range in the number of years CEOs have stayed with the company.
+The mean and median are almost equal which indicates a uniform distribution of 
+data.
+
 ```{r}
-hist(CEO$comten, 
+hist(cleanCEO$comten, 
 #     labels = T,
      ylim = c(0,40),
      main = "Histogram of Years in Company",
-     xlab = "Years"
+     xlab = "Number of Years in Company"
      )
 ```
 
@@ -231,19 +239,20 @@ across the number of years from zero to forty years.
 3.Overall, company tenure does not seem to have an impact on the output.
 
 
+
 ### Univariate analysis of grad (CEOs with graduate degrees)
+
 
 Since grad is a categorical variable, we create a factor variable
 and assign levels of GRAD and "Non_Grad" to it.
 
 ```{r}
-CEO$grad <- factor(CEO$grad,
-                      levels = c("0", "1"),
-                      labels = c("Non-Grad", "Grad"))
+cleanCEO$grad <- factor(cleanCEO$grad,
+                      labels = c("Not_Grad", "Grad"))
 ```
 
 ```{r}
-plot(CEO$grad,
+plot(cleanCEO$grad,
      main = "Count of grad versus non-grad CEOs")
 ```
 
@@ -251,14 +260,13 @@ plot(CEO$grad,
 summary(CEO$grad)
 ```
 
+
 Observations:
 
 1. We see that the number of CEOs without a graduate degree is 
 pretty comparable to the number of CEOs with graduate degree.
 
-2. This means that the data is pretty well distributed and graduate degree
-should not be having a huge impact on the outcome. 
-
+2. This means that the data is pretty well distributed.
 
 ## Multivariate Analyses
 
@@ -308,6 +316,40 @@ plot(sort(unique(mktval_bins)),salary_median_by_mktval,
      xlab = "Marketvalue in $ billions")
 ```
 These plots further strengthen our assessment of the positive relationship between salary and market values (proxy for company performance).
+
+###Bivariate analysis of Salary and Profit
+
+Profit is another indicator of company performance. We shall explore if there 
+is any relationship between the profit that companies had and the salaries of CEOs.
+
+Seeing the high clustering of profits data in the scatterplotmatrix we were tempted to take a log value of profits and plot against salary to look for an exponential relationship. Due to the presence of 10 negative profit values, we stayed away from taking a log value as this would remove the negative values from the analysis.
+
+We tried to bin the profits data into and see what the salaries for CEOs were for individual buckets. We also wanted to  look for trends in salary as profit bins changed.
+
+Histogram analysis of profits done earlier led us to create a bin for negative profits. Since most of the values were in the 0 to 250 million range, it made sense
+to split this range to do a more in-depth analysis. Hence we created two more bins of profits in the range of 0-125 million and 125-250 million. Finally, we created another bin of values greater than 250 million to bundle higher values of profit together.
+
+```{r}
+profit_bin = cut(cleanCEO$profits, breaks = c(-500,0,125,250, Inf), labels = 
+      c("Negative Profits", "Profits < 125","125 < Profits < 250", "Profits > 250"))
+summary(profit_bin)
+```
+
+```{r}
+boxplot(salary/1000 ~ profit_bin, data = cleanCEO, cex.axis = .7,
+        main = "CEO Salaries by Company Profit buckets",
+        ylab = "Salary(millions dollars)",
+        xlab = "Profits(millions dollars)")
+```
+From the graph above, we notice an upward trend in median salary with increasing profits in the realm of positive profits . There are some outliers with high salaries in the zero to 250 million bucket. The wider range of salaries in the zero to 250 million as well as greater than 250 million bucket is also noticeable. 
+It is also interesting to note that CEOs in companies with negative profits did not get paid the lowest. Infact, the median value in that bucket is slightly higher than the 0 to 250 million bucket. Since there are only 10 negative profit values in the dataset, not sure how much weightage should be given to this.
+
+```{r}
+cor(cleanCEO$salary, cleanCEO$profits, use = "complete.obs")
+
+```
+The correlation value of 0.39 above does show a somewhat positive correlation.
+
 
 ## Analysis of Secondary Variables
 
@@ -466,38 +508,11 @@ plot(sort(unique(mktval_bins)),age_median_by_mktval,
 Here again we see three different behaviors. Smaller firms (market value 5 billion or less) have a median age closer to 56 years, Firms with market value in 5-20 billion range have a median age closer to 61 years and the largest firms in our dataset have the lowest median age. 
 
 # Influence of education
-```{r}
-grad_bins <- as.factor(cleanCEO$grad)
 
-summary(grad_bins)
-```
 
-```{r}
-salary_mean_by_grad = by(cleanCEO$salary/1000, grad_bins, mean)
-salary_median_by_grad = by(cleanCEO$salary/1000, grad_bins, median)
-
-plot(sort(unique(grad_bins)),salary_mean_by_grad,
-     main = "Plot of mean salary by education",
-     xlab = "Graduated or Not",
-     ylab = "Salary in $ millions")
-
-plot(sort(unique(grad_bins)),salary_median_by_grad,
-     main = "Plot of median salary by education",
-     xlab = "Graduated or not",
-     ylab = "Salary in $ millions")
-```
 Education does not have a big impact of CEO salaries. The salaries of CEO's are similar irrespective of whether they graduated or not.
 
-```{r}
-grad_count_by_mktval = by(cleanCEO$grad, mktval_bins, sum)
-total_count_by_mktval = by(cleanCEO$grad, mktval_bins, length)
 
-plot(sort(unique(mktval_bins)),(grad_count_by_mktval/total_count_by_mktval),
-     main = "Plot of % of CEO's who graduated grouped by market value",
-     ylab = "% of CEO's who graduated",
-     xlab = "Market value in $ millions")
-
-```
 More than 60% of the firms that has a market value over 2 million has a CEO who has graduated. The percentage is lower for smaller firms. Larger firms seem to choose CEO's who have graduated college. 
 
 ## Confounding Effects
@@ -519,3 +534,46 @@ plot(sort(unique(mktval_bins)),profit_median_by_mktval,
      xlab = "Marketvalue in $ billions")
 ```
 Therefore a part of the positive relationship of Market value with Salary can be explained by profits.
+
+
+```{r}
+boxplot(age ~ profit_bin, data = cleanCEO, cex.axis = .7,
+        main = "CEO Age by company Profit buckets",
+        ylab = "Age in years",
+        xlab = "Profits(millions dollars)"
+        )
+```
+The graph above shows a very slight increasing trend in median age of CEOs with profit when profit is positive. But since most of our profits are in the 0 to 125 million range, the wide variablity of in this range age cannot be ignored. Overall, age does not seem to have a confounding effect on company profits
+The slight correlation is confirmed by the value below.
+```{r}
+cor(cleanCEO$age, cleanCEO$profits, use = "complete.obs")
+
+```
+
+```{r}
+
+boxplot(comten ~ profit_bin, data = cleanCEO, cex.axis = .7,
+        main = "Company tenure of CEO by company Profit buckets",
+        ylab = "company tenure in years",
+        xlab = "Profits(millions dollars)")
+```
+
+From the graph above, we do see an increasing trend in median CEOcompany tenure as company profit increases. This is  prominent in companies with very high profits.. One could argue that the number of years the CEO has been in a company does have a relationship with very high company profit.Also interesting is that companies with negative profits have lowest median company tenure.
+
+```{r}
+cor(cleanCEO$comten, cleanCEO$profits, use = "complete.obs")
+
+```
+
+```{r}
+
+boxplot(ceoten ~ profit_bin, data = cleanCEO, cex.axis = .7,
+        main = "CEO tenure by company Profit buckets",
+        ylab = "ceo tenure in years",
+        xlab = "Profits(millions dollars)")
+```
+From the graph above, median ceo tenure seems to have a very slight decreasing trend with profit increase. It is interesting to note that companies with high profits have the lowest median CEO tenure, even a bit lower than compnies with negative profits. This may indicate a slightly high CEO turnover at companies with higher profits.
+```{r}
+cor(cleanCEO$ceoten, cleanCEO$profits, use = "complete.obs")
+
+```
