@@ -33,20 +33,22 @@ summary(CEO)
 
 Now we have an idea of the size of our dataset (184 observations) and the scale of each variable. The data appears to be all integers. We can see that college and grad appear to be variables of just 0 and 1 outcomes, so it will be useful to convert those to factors for labeling. Both profits and market value (mktval) have negative values.
 
-Given that we are most interested in company performance and CEO salary, market value and profits appear to be our primary variables of interest, along with salary of course. The rest of which are secondary variables that could contribute to a better understanding of the primary relatiionships.
+Given that we are most interested in company performance and CEO salary, market value and profits appear to be our primary variables of interest, along with salary of course. The rest of which are secondary variables that could contribute to a better understanding of the primary relationships.
 
 Given the large number of variables, scatterplot matrices are printed below to provide an overview of relationships between variables and identify areas of interest.
 
 ```{r}
-scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$age + CEO$ceoten,
-                  data = CEO, diagonal = "histogram")
+scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$age +
+                          CEO$ceoten, data = CEO, diagonal = "histogram",
+                  main = "Scatterplot Matrix 'A' for Key CEO Salary Variables")
 ```
 
 In the upper diagonal half of the above matrix, it appears that the two company performance variables, profits and market value, both show a positive trend against CEO salary, although the data for both appear to be highly clustered at the low end. The secondary CEO age variable does not appear to have a strong influence on profits and market value, but there do appear to be slighter more high values to the right of the median age. The secondary variable CEO tenure (ceoten) looks to have higher values of profits and market value clustered at the low end of tenure. 
 
 ```{r}
-scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$comten, data = CEO,
-                  diagonal = "histogram")
+scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$comten,
+                  data = CEO, diagonal = "histogram",
+                  main = "Scatterplot Matrix 'B' for Key CEO Salary Variables")
 ```
 
 In the upper diagonal half of the matrix above, the secondary variable company tenure (comten) appears to have slight positive relationships between profits and market value. Salary appears to be fairly evenly distributed across the span of company tenures.
@@ -123,9 +125,9 @@ The histogram reveals the following characteristics:
 
 3. Most of the market values fall below $500 million.
 
-4. There is a large gap between highly dispersed data between roughly \$2.75 billion and $4.25 billion.
+4. There is a large gap in data between roughly \$27.5 billion and $42.5 billion.
 
-Although the market values between \$4 billion and $5 billion falls far outside of the bulk of the data, there is no strong evidence to conclude that they should be removed from the analysis as outliers.
+Although the market values between \$4 billion and $5 billion fall far outside of the bulk of the data, there is no strong evidence to conclude that they should be removed from the analysis as outliers.
 
 ### Univariate Analysis of Company profits
 
