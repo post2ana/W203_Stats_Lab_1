@@ -4,7 +4,6 @@ author: "Anamika Sinha, Asha Anju, Noah Randolph"
 date: "June 3, 2017"
 output:
   pdf_document: default
-  html_document: default
 ---
 
 ```{r setup, include=FALSE}
