@@ -1,8 +1,9 @@
 ---
-title: "Lab 1: Exploratory Analysis of CEO Salary Data"
+title: 'Lab 1: Exploratory Analysis of CEO Salary Data'
 author: "Anamika Sinha, Asha Anju, Noah Randolph"
 date: "June 3, 2017"
-output: pdf_document
+output:
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -80,11 +81,11 @@ summary(CEO$salary/1000)
 
 The following observations are apparent from our analysis of CEO salaries:
 
-1. The distribution of CEO salaries is positively skewed with a peak around \$0.6 million and a maximum value of $5.299 million.
+1. The distribution of CEO salaries is positively skewed with a peak around \$0.6 million.
 2. Except the maximum value, all salaries are below \$3.0 million. Most of the salaries are below $2.0 million. 
-3. The distance of maximum value from the 3rd quartile value is more than the interquartile range, thus making the data point an outlier. 
+3. The distance of maximum value from the 3rd quartile value is more than thrice the interquartile range, thus making the data point an outlier. 
 
-Further analysis of the data corresponding to this outlier salary is required. Eventhough the maximum salary is an outlier, there is no strong evidence to conclude that it should be removed from our analysis.
+Eventhough the maximum salary is an outlier, there is no strong evidence to conclude that it should be removed from our analysis.
 
 ### Univariate Analysis of Market Value
 
@@ -289,18 +290,18 @@ cor(cleanCEO$mktval, cleanCEO$salary)
 We group the data into different bins using market values and analyse the salary statistics for these bins. This will help
 
 ```{r}
-mktval_bins <- cut(cleanCEO$mktval/1000,
-                        c(0,1,2,5,10,20,60))
-summary(mktval_bins)
+#mktval_bins <- cut(cleanCEO$mktval/1000,
+#                        c(0,1,2,5,10,20,60))
+#summary(mktval_bins)
 ```
 
 ```{r}
 #salary_median_by_mktval = by(cleanCEO$salary/1000, mktval_bins, median)
 
-boxplot(cleanCEO$salary ~ mktval_bins,
-     main = "Plot of median salary by market value",
-     ylab = "Median Salary in $ millions",
-     xlab = "Marketvalue in $ billions")
+#boxplot(cleanCEO$salary ~ mktval_bins,
+#     main = "Plot of median salary by market value",
+#     ylab = "Median Salary in $ millions",
+#     xlab = "Marketvalue in $ billions")
 ```
 These plots further strengthen our assessment of the positive relationship between salary and market values (proxy for company performance).
 
@@ -336,17 +337,19 @@ cor(cleanCEO$salary, cleanCEO$profits, use = "complete.obs")
 ```
 The correlation value of 0.39 above does show a somewhat positive correlation.
 
-
 ## Analysis of Secondary Variables
 
 In this section, we analyse the impact of the remaining variables on our primary variables of interest viz. salary, market value and profits.
 
-### Effects of CEO Tenure
+### Effects on CEO Salary
 
-The variable ceoten captures the number of years of service as CEO. The data is reported as integers and ranges from  0 to 37. Before analysing the influence of ceo tenure on the primary variables, we group them into bins for easier analysis.
+We look at the influence of the secondary variables on the CEO salary.
+
+#### CEO Tenure
+
+The variable ceoten captures the number of years of service as CEO. The data is reported as integers and ranges from  0 to 37. 75% of the values are concentrated in the first one third of the overall tenure spread. This clustering makes scatter plots less informative. Therefore to analyse the influence of ceo tenure on the primary variables, we group them into bins. Fifty percent of the tenure values are below 6 years and therefore we create two bins in this range to better understand the data. 
 
 ```{r}
-# Creating a new variable ceoten_bins
 ceoten_bins <- cut(cleanCEO$ceoten,
                         c(0,3,6,10,20,40),
                         include.lowest = TRUE,right = FALSE, 
@@ -357,170 +360,133 @@ ceoten_bins <- cut(cleanCEO$ceoten,
 summary(ceoten_bins)
 ```
 
-We calculate the mean and median salaries for each of these bins and plot them.
-
+We create a boxplot of salary for the various tenure groups. The y axis has been limited to salary of \$2.5 millions.  
 ```{r}
-salary_mean_by_ceoten = by(cleanCEO$salary/1000, ceoten_bins, mean)
-salary_median_by_ceoten = by(cleanCEO$salary/1000, ceoten_bins, median)
-
-plot(sort(unique(ceoten_bins)),salary_mean_by_ceoten,
-     main = "Plot of mean salary by CEO Tenure",
-     xlab = "CEO Tenure in years",
-     ylab = "Salary in $ millions")
-
-plot(sort(unique(ceoten_bins)),salary_median_by_ceoten,
-     main = "Plot of median salary by CEO Tenure",
-     xlab = "CEO Tenure in years",
-     ylab = "Salary in $ millions")
+boxplot(cleanCEO$salary/1000~ ceoten_bins,
+     main = "Plot of CEO Salary by CEO Tenure",
+     xlab = "CEO Tenure (years)",
+     ylab = "Salary (million dollars)",
+     ylim = c(0,2.5))
 
 ```
-The mean and median salaries for CEO's is comparitively lower if their tenure is less than 6 years.
+The median salaries for CEOs appear to increase with tenure for tenure less than 10 years. Beyond that the effect of years of tenure seem to reduce.
 
-Now we explore the relationship between market value and ceo tenure. 
+#### Company Tenure
 
-```{r}
-ceoten_mean_by_mktval = by(cleanCEO$ceoten, mktval_bins, mean)
-ceoten_median_by_mktval = by(cleanCEO$ceoten, mktval_bins, median)
+The variable comten captures the number of years of service with the company. The data is fairly uniformly distributed across the years. To simplify our analysis, we group the data based on years of tenure at the company. We have created bins of size 10 years except for the last bin which captures data for a twenty year period. This is because of the low frequency of data with such high tenure. 
 
-plot(sort(unique(mktval_bins)),ceoten_mean_by_mktval,
-     main = "Plot of mean CEO Tenure by market value",
-     ylab = "CEO Tenure in years",
-     xlab = "Marketvalue in $ billions")
-
-plot(sort(unique(mktval_bins)),ceoten_median_by_mktval,
-     main = "Plot of median CEO Tenure by market value",
-     ylab = "CEO Tenure in years",
-     xlab = "Marketvalue in $ billions")
-```
-
-For companies with market values 5 million or less, the tenure of CEO is similar. For companies with marketvalue above 5 million, there is a large variation in mean and median CEO tenure.
-
-### Possible Company Tenure Effects
-
-We group the data into bins based on company tenure.
 ```{r}
 comten_bins <- cut(cleanCEO$comten,
                    c(0,10,20,30,40,60),
                    labels = c('<10', '10-20 yrs','20-30 yrs',
                                    '30-40 yrs', '40-60 yrs'),
                    right = FALSE)
-```
 
-```{r}
 # Gives no of datapoints in each bin
 summary(comten_bins)
 ```
 
-```{r}
-salary_mean_by_comten = by(cleanCEO$salary/1000, comten_bins, mean)
-salary_median_by_comten = by(cleanCEO$salary/1000, comten_bins, median)
-
-
-plot(sort(unique(comten_bins)),salary_mean_by_comten,
-     main = "Plot of mean salary by Company Tenure",
-     xlab = "Company Tenure in years",
-     ylab = "Salary in $ millions")
-
-plot(sort(unique(comten_bins)),salary_median_by_comten,
-     main = "Plot of median salary by Company Tenure",
-     xlab = "Company Tenure in years",
-     ylab = "Salary in $ millions")
-
-```
-Surprisingly the median salary for CEO's with company tenure more than 40 years is much less than the rest of the group.
-
+We create a boxplot of salary for the various tenure groups. The y axis has been limited to salary of \$2.5 millions. 
 
 ```{r}
-comten_mean_by_mktval = by(cleanCEO$comten, mktval_bins, mean)
-comten_median_by_mktval = by(cleanCEO$comten, mktval_bins, median)
+boxplot(cleanCEO$salary/1000~ comten_bins,
+     main = "Plot of CEO Salary by Company Tenure",
+     xlab = "Company Tenure (years)",
+     ylab = "Salary (million dollars)",
+     ylim = c(0,2.5))
 
-plot(sort(unique(mktval_bins)),comten_mean_by_mktval,
-     main = "Plot of mean Company Tenure by market value",
-     ylab = "Company Tenure in years",
-     xlab = "Marketvalue in $ billions")
-
-plot(sort(unique(mktval_bins)),comten_median_by_mktval,
-     main = "Plot of median Company Tenure by market value",
-     ylab = "Company Tenure in years",
-     xlab = "Marketvalue in $ billions")
 ```
-We see three different clusters in the plot of company tenure vs market value. For companies with market value > $10 billion, the median tenure is above 30 years. The companies with market value between 2 and 10 million have a median company tenure  around 26 years. For market value 2 million of less, the median tenure is closer to 20 years.
 
-This change in company tenure with market value does not successfully explain the change in salary levels with market value.
+The median salary and its distribution appears fairly similar for tenure less than 40 years. The low median salary for the highest tenure group comes as a surprise.
 
-## Possible Age Effects
+#### Age
+
+Age data is clusterd with nearly 50% of the data spread on a 10 year period. This makes drawing conclusions using scatterplot difficult. Therefore we apply grouping to age data as well.  
 
 ```{r}
 age_bins <- cut(cleanCEO$age, 
-                     c(0,40,50,60,70,90), 
+                     c(0,40,50,60,70,90),
+                labels = c('<40 yrs', '40-50 yrs', '50-60 yrs',
+                           '60-70 yrs', '70-90 yrs'),
                      right = FALSE)
 
 # Gives number of datapoints in each age range
 summary(age_bins)
 ```
+
+We create a boxplot of salary for the various tenure groups. The y axis has been limited to salary of \$2.5 millions. 
+
 ```{r}
-salary_mean_by_age = by(cleanCEO$salary/1000, age_bins, mean)
-salary_median_by_age = by(cleanCEO$salary/1000, age_bins, median)
-
-
-plot(sort(unique(age_bins)),salary_mean_by_age,
-     main = "Plot of mean salary by Age",
-     xlab = "Age in years",
-     ylab = "Salary in $ millions")
-
-plot(sort(unique(age_bins)),salary_median_by_age,
-     main = "Plot of median salary by Age",
-     xlab = "Age in years",
-     ylab = "Salary in $ millions")
+boxplot(cleanCEO$salary/1000~ age_bins,
+     main = "Plot of CEO Salary by Age",
+     xlab = "Age of CEO (years)",
+     ylab = "Salary (million dollars)",
+     ylim = c(0,2.5))
 
 ```
 
+For age in range 40 to 70 years, the median salary shows an increasing trend with age. The lower median salary and greater spread of salary for the highest age bracket is surprising.
 
+
+
+### Effects on Market Value
+
+We analyse the impact of secondary variables on market value. Due to the large range of market values and clustering at the lower level values, we perform grouping on the market value variable. Due to the shape of the market value distribution we have more bins at the lower end of the market value spectrum. 
 
 ```{r}
-age_mean_by_mktval = by(cleanCEO$age, mktval_bins, mean)
-age_median_by_mktval = by(cleanCEO$age, mktval_bins, median)
+mktval_bins <- cut(cleanCEO$mktval/1000,
+                        c(0,1,2,5,10,20,60),
+                   labels = c('<1','1-2','2-5','5-10','10-20','20-60'))
+summary(mktval_bins)
 
-plot(sort(unique(mktval_bins)),age_mean_by_mktval,
-     main = "Plot of mean Age by market value",
-     ylab = "Age in years",
-     xlab = "Marketvalue in $ billions")
-
-plot(sort(unique(mktval_bins)),age_median_by_mktval,
-     main = "Plot of median Age by market value",
-     ylab = "Age in years",
-     xlab = "Marketvalue in $ billions")
 ```
-Here again we see three different behaviors. Smaller firms (market value 5 billion or less) have a median age closer to 56 years, Firms with market value in 5-20 billion range have a median age closer to 61 years and the largest firms in our dataset have the lowest median age. 
 
-# Influence of education
+#### CEO Tenure
 
+There does not seem to be a significant difference in the median salaries of CEOs who attended college compared to those who did not.
 
-Education does not have a big impact of CEO salaries. The salaries of CEO's are similar irrespective of whether they graduated or not.
+```{r}
+boxplot(cleanCEO$ceoten ~ mktval_bins,
+     main = "Plot of CEO Tenure by Market Value",
+     ylab = "CEO Tenure (years)",
+     xlab = "Marketvalue (billion dollars)")
 
+```
 
-More than 60% of the firms that has a market value over 2 million has a CEO who has graduated. The percentage is lower for smaller firms. Larger firms seem to choose CEO's who have graduated college. 
+The median CEO tenure tend to be decreasing with increase in market value of company. But there is an increase in the tenure for companies in \$10 billion to $20 billion range.
+
+#### Company Tenure
+
+```{r}
+boxplot(cleanCEO$comten ~ mktval_bins,
+     main = "Plot of Company Tenure by Market Value",
+     ylab = "Company Tenure (years)",
+     xlab = "Marketvalue (billion dollars")
+```
+The companies in different market value ranges tend to behave slightly differently. For companies with a market value below \$2 billion, the median tenure is around 20 years. For companies with market values in \$2 billion to $10 billion, the median tenure is around 26 years. The median company tenure is closer to 30 years for companie with market values above \$10 billion.
+
+#### Company Age
+
+```{r}
+boxplot(cleanCEO$age ~ mktval_bins,
+     main = "Plot of CEO Age by Market Value",
+     ylab = "Age of CEO (years)",
+     xlab = "Marketvalue (billion dollars")
+```
+The median age of CEOs appear to increase with increase in market value of the company. The exception is out group with the largest market value, which has the lowest median age.
+
 
 ## Confounding Effects
 
 We have used profits and market values as proxy for company performance. We have explored the relationship between these individual variables and salary. However the two variables themselves exhibit a positive relationship.
 
 ```{r}
-profit_mean_by_mktval = by(cleanCEO$profits, mktval_bins, mean)
-profit_median_by_mktval = by(cleanCEO$profits, mktval_bins, median)
-
-plot(sort(unique(mktval_bins)),profit_mean_by_mktval,
-     main = "Plot of mean profit by market value",
-     ylab = "Mean profit in $ millions",
-     xlab = "Marketvalue in $ billions")
-
-plot(sort(unique(mktval_bins)),profit_median_by_mktval,
-     main = "Plot of median profit by market value",
-     ylab = "Median profit in $ millions",
-     xlab = "Marketvalue in $ billions")
+boxplot(cleanCEO$profits ~ mktval_bins,
+        main = "Plot of Company Profits vs Market Value",
+        xlab = "Market Value (billion dollars)",
+        ylab = "Company Profit (million dollars)")
 ```
-Therefore a part of the positive relationship of Market value with Salary can be explained by profits.
-
+Therefore a part of the positive relationship of market value with Salary may be explained by profits.
 
 ```{r}
 boxplot(age ~ profit_bin, data = cleanCEO, cex.axis = .7,
@@ -529,6 +495,7 @@ boxplot(age ~ profit_bin, data = cleanCEO, cex.axis = .7,
         xlab = "Profits(millions dollars)"
         )
 ```
+
 The graph above shows a very slight increasing trend in median age of CEOs with profit when profit is positive. But since most of our profits are in the 0 to 125 million range, the wide variablity of in this range age cannot be ignored. Overall, age does not seem to have a confounding effect on company profits
 The slight correlation is confirmed by the value below.
 ```{r}
@@ -544,7 +511,7 @@ boxplot(comten ~ profit_bin, data = cleanCEO, cex.axis = .7,
         xlab = "Profits(millions dollars)")
 ```
 
-From the graph above, we do see an increasing trend in median CEOcompany tenure as company profit increases. This is  prominent in companies with very high profits.. One could argue that the number of years the CEO has been in a company does have a relationship with very high company profit.Also interesting is that companies with negative profits have lowest median company tenure.
+From the graph above, we do see an increasing trend in median CEOcompany tenure as company profit increases. This is  prominent in companies with very high profits. One could argue that the number of years the CEO has been in a company does have a relationship with very high company profit.Also interesting is that companies with negative profits have lowest median company tenure.
 
 ```{r}
 cor(cleanCEO$comten, cleanCEO$profits, use = "complete.obs")
@@ -563,3 +530,6 @@ From the graph above, median ceo tenure seems to have a very slight decreasing t
 cor(cleanCEO$ceoten, cleanCEO$profits, use = "complete.obs")
 
 ```
+### Missing values, coding errors etc.
+
+For two data points, the company tenure is less than the CEO tenure. Since these two data points did not change the results of our analysis, we have left them in our dataset. 
