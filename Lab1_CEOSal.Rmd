@@ -146,7 +146,7 @@ hist(cleanCEO$profits,
      breaks = 20,
      ylim = c(0,175),
      main = "Profits for Companies in 1990",
-     xlab = "Profits(millions dollars)")
+     xlab = "Profits(million dollars)")
 ```
 
 
@@ -156,15 +156,15 @@ hist(cleanCEO$profits,
 
 1. Most companies have profits below $250 million. 
 
-2. The histogram has a slight positive skew due to the presence of some outliers.They seem to be pushing the mean to even beyond the 3rd quartile.
-The mean is much higher than the median value.
+2. The histogram has a slight positive skew due to the presence of some outliers. They seem to be pushing the mean to even beyond the 3rd quartile. The mean is much higher than the median value.
 
-3. 10 companies with negative profits is worth investigating. Since most of the profits is from zero to 250 million that bin is worth some further analysis. We may split this bucket in future to see if there are any trends.
+3. Since most of the profits are from \$0 to $250 million, that bin is worth some further analysis. We split this bucket later to see if there are any apparent trends.
 
-4. It will be interesting to see the salaries of CEOs with negative profit for 8 companies in 0 and -200 million range. 
+4. It will be interesting to see the salaries of CEOs of the 10 companies with negative profits.
+
 ### Univariate Analysis of CEO Age
 
-We next examine the age of CEO's to understand the distribution and its features.
+We next examine the age of CEOs to understand the distribution and its features.
 
 ```{r}
 summary(CEO$age)
@@ -180,7 +180,7 @@ The following observations are apparent from our analysis of age information:
 
 1. The ages cover a large range with a minimum age of 21 years and maximum age of 86 years.
 2. The distribution peaks peak around 55-60 years of age and have a slight negative skew. 
-3. 50% of the CEO's in the dataset have ages in a 10 year range between 51 and 61.25 years.
+3. 50% of the CEOs in the dataset have ages in a 10 year range between 51 and 61.25 years.
 
 ### Univariate Analysis of CEO Tenure
 
@@ -213,7 +213,7 @@ We analyzed the total number of years CEOs stayed with the
 company including years before or after becoming CEO.
 
 ```{r}
-summary(cleanCEO$comten)
+summary(CEO$comten)
 ```
 
 There is a wide range in the number of years CEOs have stayed with the company.
@@ -221,39 +221,33 @@ The mean and median are almost equal which indicates a uniform distribution of
 data.
 
 ```{r}
-hist(cleanCEO$comten, 
-#     labels = T,
+hist(CEO$comten, 
      ylim = c(0,40),
      main = "Histogram of Years in Company",
      xlab = "Number of Years in Company"
      )
 ```
 
-Observations: 
+The following observations are apparent: 
 
-1.We see that there is almost a uniform spread of data
-across the number of years from zero to forty years. 
+1. We see that there is almost a uniform spread of data across the number of years from zero to forty years. 
 
-2.There is a bit of spike at 30-35 years and 1 outlier in the 55 to 60 years. 
-
-3.Overall, company tenure does not seem to have an impact on the output.
+2. There is a small spike at 30-35 years and 1 observation in the 55 to 60 years. 
 
 
+### Univariate analysis of CEOs who attended graduate school
 
-### Univariate analysis of grad (CEOs with graduate degrees)
-
-
-Since grad is a categorical variable, we create a factor variable
-and assign levels of GRAD and "Non_Grad" to it.
+Since graduate school (grad) is a categorical variable, we create a factor variable
+and assign levels of "Attended" and "Did Not Attend" to it.
 
 ```{r}
-cleanCEO$grad <- factor(cleanCEO$grad,
-                      labels = c("Not_Grad", "Grad"))
+CEO$grad <- factor(CEO$grad,
+                      labels = c("Did Not Attend", "Attended"))
 ```
 
 ```{r}
-plot(cleanCEO$grad,
-     main = "Count of grad versus non-grad CEOs")
+plot(CEO$grad, ylab = "Count of CEOs",
+     main = "CEO Graduate School Attendance")
 ```
 
 ```{r}
@@ -263,14 +257,13 @@ summary(CEO$grad)
 
 Observations:
 
-1. We see that the number of CEOs without a graduate degree is 
-pretty comparable to the number of CEOs with graduate degree.
+1. We see that the number of CEOs without a graduate degree is pretty comparable to the number of CEOs with graduate degree.
 
-2. This means that the data is pretty well distributed.
+2. This means that the data is distributed uniformly between the 2 levels.
 
 ## Multivariate Analyses
 
-Now that we understand the type and general nature of the data in each variable, we turn to multivariate analyses to begin to answer the question of whether CEO salary is related to company performace.
+Now that we understand the type and general nature of the data in each variable, we turn to multivariate analyses to begin to answer the question of whether CEO salary is related to company performace. We are using market value and profits as proxies for company performance for the primary assessment of salary as it relates to company performance.
 
 ### Multivariate Analysis of Market Value Versus CEO Salary
 
@@ -279,21 +272,21 @@ Market value is plotted against CEO salary as it is one measure of company perfo
 Because of the high clustering of market value data seen in the scatterplot matrix of the initial exploration above, market value will be plotted using a $log_{10}$ scale. We exclude observations (whole rows of data) including the -1 values found in the univariate analysis of market values (though they would not plot on a log scale even if included).
 
 ```{r}
-plot(log10(cleanCEO$mktval), cleanCEO$salary, main = "Market Value Versus CEO Salary", 
+plot(log10(cleanCEO$mktval), cleanCEO$salary/1000, main = "Market Value Versus CEO Salary", 
      xlab = expression(paste(Log[10], 
                              " of Market Value, end of 1990 (million dollars)")), 
      ylab = "Salary (million dollars)")
-abline(lm(cleanCEO$salary ~ log10(cleanCEO$mktval)))
+abline(lm(cleanCEO$salary/1000 ~ log10(cleanCEO$mktval)))
 ```
 
-The plot above, with its linear regression line, shows a clear positive relationship between the two variables. The correlation, below, also shows that indeed some relation exists. However, the relationship cannot be said to be linear, since market value was plotted in $log_{10}$ scale. 
+The plot above, with its linear regression line, shows a clear positive relationship between salary and the $log_{10}$ of market value. The correlation, below, also shows that indeed some relation exists. However, the relationship cannot be said to be linear, since market value was plotted in $log_{10}$ scale. 
 ```{r}
 cor(cleanCEO$mktval, cleanCEO$salary)
 ```
 
-### Relationship between market value and salary when data is grouped by market value.
+# REVISIT THIS SECTION****
 
-We group the data into different bins using market values and analyse the salary statistics for these bins.
+We group the data into different bins using market values and analyse the salary statistics for these bins. This will help
 
 ```{r}
 mktval_bins <- cut(cleanCEO$mktval/1000,
@@ -302,51 +295,44 @@ summary(mktval_bins)
 ```
 
 ```{r}
-salary_mean_by_mktval = by(cleanCEO$salary/1000, mktval_bins, mean)
-salary_median_by_mktval = by(cleanCEO$salary/1000, mktval_bins, median)
+#salary_median_by_mktval = by(cleanCEO$salary/1000, mktval_bins, median)
 
-plot(sort(unique(mktval_bins)),salary_mean_by_mktval,
-     main = "Plot of mean salary by market value",
-     ylab = "Mean Salary in $ millions",
-     xlab = "Marketvalue in $ billions")
-
-plot(sort(unique(mktval_bins)),salary_median_by_mktval,
+boxplot(cleanCEO$salary ~ mktval_bins,
      main = "Plot of median salary by market value",
      ylab = "Median Salary in $ millions",
      xlab = "Marketvalue in $ billions")
 ```
 These plots further strengthen our assessment of the positive relationship between salary and market values (proxy for company performance).
 
-###Bivariate analysis of Salary and Profit
+### Bivariate Analysis of Salary and Profit
 
 Profit is another indicator of company performance. We shall explore if there 
-is any relationship between the profit that companies had and the salaries of CEOs.
+is a relationship between company profit and CEO salaries.
 
-Seeing the high clustering of profits data in the scatterplotmatrix we were tempted to take a log value of profits and plot against salary to look for an exponential relationship. Due to the presence of 10 negative profit values, we stayed away from taking a log value as this would remove the negative values from the analysis.
+Seeing the high clustering of profit data in the scatterplot matrix, we were tempted to plot the log of profits against salary to look for a relationship. However, due to the presence of 10 negative profit values, we decided against log values as they remove negative profits from the analysis.
 
-We tried to bin the profits data into and see what the salaries for CEOs were for individual buckets. We also wanted to  look for trends in salary as profit bins changed.
+Instead, we grouped the profit data to see if salaries for CEOs showed a trend across profit bins.
 
-Histogram analysis of profits done earlier led us to create a bin for negative profits. Since most of the values were in the 0 to 250 million range, it made sense
-to split this range to do a more in-depth analysis. Hence we created two more bins of profits in the range of 0-125 million and 125-250 million. Finally, we created another bin of values greater than 250 million to bundle higher values of profit together.
+Histogram analysis of profits done earlier led us to create a bin for negative profits. We created two more bins of profits in the ranges of \$0 to \$125 million and \$125 to $250 million. Finally, we created another bin of values greater than \$250 million to bundle higher values of profit together.
 
 ```{r}
 profit_bin = cut(cleanCEO$profits, breaks = c(-500,0,125,250, Inf), labels = 
-      c("Negative Profits", "Profits < 125","125 < Profits < 250", "Profits > 250"))
+      c("Profit < 0", "0 < Profit < 125","125 < Profit < 250", "250 < Profit"))
 summary(profit_bin)
 ```
 
 ```{r}
 boxplot(salary/1000 ~ profit_bin, data = cleanCEO, cex.axis = .7,
-        main = "CEO Salaries by Company Profit buckets",
-        ylab = "Salary(millions dollars)",
-        xlab = "Profits(millions dollars)")
+        main = "CEO Salaries by Company Profit",
+        ylab = "Salary (million dollars)",
+        xlab = "Profit (million dollars)")
 ```
-From the graph above, we notice an upward trend in median salary with increasing profits in the realm of positive profits . There are some outliers with high salaries in the zero to 250 million bucket. The wider range of salaries in the zero to 250 million as well as greater than 250 million bucket is also noticeable. 
-It is also interesting to note that CEOs in companies with negative profits did not get paid the lowest. Infact, the median value in that bucket is slightly higher than the 0 to 250 million bucket. Since there are only 10 negative profit values in the dataset, not sure how much weightage should be given to this.
+From the graph above, we notice an upward trend in median salary with increasing profits in the realm of positive profits . There are some outliers with high salaries in the zero to $250 million bucket. The wider range of salaries in the \$0 to \$250 million as well as greater than \$250 million bucket is also noticeable. 
+
+It is also interesting to note that CEOs in companies with negative profits did not get paid the lowest. Infact, the median value in that bucket is slightly higher than the \$0 to $250 million bucket.
 
 ```{r}
 cor(cleanCEO$salary, cleanCEO$profits, use = "complete.obs")
-
 ```
 The correlation value of 0.39 above does show a somewhat positive correlation.
 
