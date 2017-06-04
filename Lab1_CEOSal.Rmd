@@ -1,7 +1,7 @@
 ---
 title: 'Lab 1: Exploratory Analysis of CEO Salary Data'
 author: "Anamika Sinha, Asha Anju, Noah Randolph"
-date: "June 3, 2017"
+date: "June 4, 2017"
 output:
   pdf_document: default
 ---
@@ -18,7 +18,7 @@ Exploratory data analysis techniques were used and will be presented with commen
 
 # Setup
 
-We will utilize the "car: Companion to Applied Regression" package in R and load it, as well as the data file of interest, here.
+We will utilize the "car: Companion to Applied Regression" package in R and load it, as well as the data file of interest.
 ```{r load}
 library(car)
 load("ceo_w203.RData")
@@ -26,7 +26,7 @@ load("ceo_w203.RData")
 
 # Exploratory Analysis
 
-To get an initial understanding of the dataset, we'll look at the structure of its data frame and a summary of its variables.
+To get an initial understanding of the dataset, we look at the structure of its data frame and a summary of its variables.
 ```{r}
 str(CEO)
 summary(CEO)
@@ -34,7 +34,7 @@ summary(CEO)
 
 Now we have an idea of the size of our dataset (184 observations) and the scale of each variable. The data appears to be all integers. We can see that college and grad appear to be variables of just 0 and 1 outcomes, so it will be useful to convert those to factors for labeling. Both profits and market value (mktval) have negative values.
 
-Given that we are most interested in company performance and CEO salary, market value and profits appear to be our primary variables of interest, along with salary of course. The rest of which are secondary variables that could contribute to a better understanding of the primary relationships.
+Given that we are most interested in company performance and CEO salary, market value and profits appear to be our primary variables of interest, along with salary, of course. The rest of which are secondary variables that could contribute to a better understanding of the primary relationships.
 
 Given the large number of variables, scatterplot matrices are printed below to provide an overview of relationships between variables and identify areas of interest.
 
@@ -44,7 +44,7 @@ scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$age +
                   main = "Scatterplot Matrix 'A' for Key CEO Salary Variables")
 ```
 
-In the upper diagonal half of the above matrix, it appears that the two company performance variables, profits and market value, both show a positive trend against CEO salary, although the data for both appear to be highly clustered at the low end. The secondary CEO age variable does not appear to have a strong influence on profits and market value, but there do appear to be slighter more high values to the right of the median age. The secondary variable CEO tenure (ceoten) looks to have higher values of profits and market value clustered at the low end of tenure. 
+In the upper diagonal half of the above matrix, it appears that the two company performance variables, profits and market value, both show a positive trend against CEO salary, although the data for both appear to be highly clustered at the low end. The CEO age variable does not appear to have a strong influence on profits and market value, but there do appear to be slighter more high values to the right of the median age. The variable CEO tenure (ceoten) looks to have higher values of profits and market value clustered at the low end of tenure. 
 
 ```{r}
 scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$comten,
@@ -52,7 +52,7 @@ scatterplotMatrix(~ CEO$salary + CEO$profits + CEO$mktval + CEO$comten,
                   main = "Scatterplot Matrix 'B' for Key CEO Salary Variables")
 ```
 
-In the upper diagonal half of the matrix above, the secondary variable company tenure (comten) appears to have slight positive relationships between profits and market value. Salary appears to be fairly evenly distributed across the span of company tenures.
+In the upper diagonal half of the matrix above, the variable company tenure (comten) appears to have slight positive relationships between profits and market value. Salary appears to be fairly evenly distributed across the span of company tenures.
 
 ## Univariate Analyses
 
@@ -66,7 +66,7 @@ summary(CEO$college)
 
 ### Univariate Analysis of Salary Data
 
-We start with the analysis of CEO Salary Data, our response variable of interest. We first examine the histogram of salary information.The individual salary amounts have been scaled to reflect the value in millions. We have set the break points manually but the bin width is same as that obtained using Freedman and Diaconis rule.
+We start with the analysis of CEO salary, our response variable of interest. We first examine the histogram of salary data. The individual salary amounts have been scaled to reflect the value in millions. We have set the break points manually but the bin width is same as that obtained using Freedman and Diaconis rule.
 
 ```{r}
 hist(CEO$salary/1000, breaks = seq(0,6,.2),
@@ -84,14 +84,14 @@ summary(CEO$salary/1000)
 The following observations are apparent from our analysis of CEO salaries:
 
 1. The distribution of CEO salaries is positively skewed with a peak around \$0.6 million.
-2. Except the maximum value, all salaries are below \$3.0 million. Most of the salaries are below $2.0 million. 
-3. The distance of maximum value from the 3rd quartile value is more than thrice the interquartile range, thus making the data point an outlier. 
+2. Except for the maximum value, all salaries are below \$3.0 million. Most of the salaries are below $2.0 million. 
+3. The distance of maximum value from the 3rd quartile value is more than three times the interquartile range, making the data point an outlier. 
 
 Eventhough the maximum salary is an outlier, there is no strong evidence to conclude that it should be removed from our analysis.
 
 ### Univariate Analysis of Market Value
 
-Market value is commonly associated with company performance, which is of primary interest as it relates to CEO salary. Thus, we include an assessessment of its data in the variable, "mktval", univariately. First, a summary of the data: 
+Market value is commonly associated with company performance, which is of primary interest as it relates to CEO salary. Thus, we include an assessment of its data in the variable, "mktval", univariately. First, a summary of the data: 
 
 ```{r summary}
 summary(CEO$mktval)
@@ -103,7 +103,7 @@ The market value range is vast, with the maximum value far greater than the valu
 CEO[CEO$mktval < 0, ]
 ```
 
-A subset of the data less than zero reveals that a coding error is apparent. The -1 values in both market value and profits likely represent data points that were unavailable for particular companies. Further analyses in this report will be on subsets of the data excluding the values of -1 for market value and profits.
+A subset of the data less than zero reveals that a coding error is apparent. The -1 values in both market value and profits likely represent data points that were unavailable for particular companies. Further analyses in this report on market value or profits will be on subsets of the data excluding the values of -1.
 
 ```{r}
 cleanCEO <- subset(CEO, CEO$mktval > 0)
@@ -120,17 +120,17 @@ hist(mktvalbillions, breaks = seq(0, 50, 2.5),
 
 The histogram reveals the following characteristics:
 
-1. Market value is skewed toward the positive and frequencies drop steeply between \$250 million and $500 million, for a decaying profile of frequencies as market value increases.
+1. Market value is skewed toward the positive and frequencies drop steeply between \$2.5 billion and $5 billion, for a decaying profile of frequencies as market value increases.
 
 2. Although market value does not take on negative values, integer effects are not of concern due to its high dispersion.
 
-3. Most of the market values fall below $500 million.
+3. Most of the market values fall below $5 billion.
 
 4. There is a large gap in data between roughly \$27.5 billion and $42.5 billion.
 
-Although the market values between \$4 billion and $5 billion fall far outside of the bulk of the data, there is no strong evidence to conclude that they should be removed from the analysis as outliers.
+Although the market values between \$40 billion and $50 billion fall far outside of the bulk of the data, there is no strong evidence to conclude that they should be removed from the analysis as outliers.
 
-### Univariate Analysis of Company profits
+### Univariate Analysis of Profits
 
 Next, we investigate company profits as it is also an indicator of company performance.
 
@@ -141,15 +141,15 @@ summary(cleanCEO$profits)
 We see that there are negative profits but the number of companies with 
 negative profits may be low as the first quartile value is still positive. There is a wide range in values with the maximum profit going as high as 13 times the 3rd quartile value. The mean being much higher than the median and even more than the third quartile values indicates the presence of a few very high profit values.
 
-For the purpose of further analysis, we will use the cleanCEO dataset created and explained above in market value analysis. (5 values with coding errors have been dropped as the value of profit is also -1 along with mkatval being -1) 
+We use the cleanCEO dataset as explained above for market value (5 values with coding errors have been dropped). 
 
 
 ```{r}
 hist(cleanCEO$profits,
      breaks = 20,
      ylim = c(0,175),
-     main = "Profits for Companies in 1990",
-     xlab = "Profits(million dollars)")
+     main = "Profit for Companies in 1990",
+     xlab = "Profit (million dollars)")
 ```
 
 
@@ -161,7 +161,7 @@ hist(cleanCEO$profits,
 
 2. The histogram has a slight positive skew due to the presence of some outliers. They seem to be pushing the mean to even beyond the 3rd quartile. The mean is much higher than the median value.
 
-3. Since most of the profits are from \$0 to $250 million, that bin is worth some further analysis. We split this bucket later to see if there are any apparent trends.
+3. Since most of the profits are from \$0 to $250 million, that bin is worth some further analysis. We split this bin later, for more detail, to see if there are any apparent trends.
 
 4. It will be interesting to see the salaries of CEOs of the 10 companies with negative profits.
 
@@ -209,19 +209,17 @@ The following observations are apparent in the histogram of CEO tenures:
 
 
 
-### Univariate analysis of Company tenure
+### Univariate Analysis of Company Tenure
 
 
-We analyzed the total number of years CEOs stayed with the 
-company including years before or after becoming CEO.
+We analyzed the total number of years CEOs stayed with the company including years before and after becoming CEO.
 
 ```{r}
 summary(CEO$comten)
 ```
 
-There is a wide range in the number of years CEOs have stayed with the company.
-The mean and median are almost equal which indicates a uniform distribution of 
-data.
+There is a wide range in the number of years CEOs have stayed with their companies.
+The mean and median are almost equal, thus there should be no skew of the data.
 
 ```{r}
 hist(CEO$comten, 
@@ -231,14 +229,14 @@ hist(CEO$comten,
      )
 ```
 
-The following observations are apparent: 
+The following observations are apparent from the histogram: 
 
-1. We see that there is almost a uniform spread of data across the number of years from zero to forty years. 
+1. We see that there is almost a uniform spread of data across the number of years from zero to forty years, hence the close agreement of mean and median. 
 
 2. There is a small spike at 30-35 years and 1 observation in the 55 to 60 years. 
 
 
-### Univariate analysis of CEOs who attended graduate school
+### Univariate Analysis of Graduate School Attendance
 
 Since graduate school (grad) is a categorical variable, we create a factor variable
 and assign levels of "Attended" and "Did Not Attend" to it.
@@ -257,20 +255,13 @@ plot(CEO$grad, ylab = "Count of CEOs",
 summary(CEO$grad)
 ```
 
-
-Observations:
-
-1. We see that the number of CEOs without a graduate degree is pretty comparable to the number of CEOs with graduate degree.
-
-2. This means that the data is distributed uniformly between the 2 levels.
+We see that the number of CEOs who did not attend graduate school is pretty comparable to the number of CEOs who did.
 
 ## Multivariate Analyses
 
 Now that we understand the type and general nature of the data in each variable, we turn to multivariate analyses to begin to answer the question of whether CEO salary is related to company performace. We are using market value and profits as proxies for company performance for the primary assessment of salary as it relates to company performance.
 
-### Multivariate Analysis of Market Value Versus CEO Salary
-
-Market value is plotted against CEO salary as it is one measure of company performance. We are interested in seeing the degree to which the level of CEO salary is related to the market value of that CEO's company.
+### Market Value Versus CEO Salary
 
 Because of the high clustering of market value data seen in the scatterplot matrix of the initial exploration above, market value will be plotted using a $log_{10}$ scale. We exclude observations (whole rows of data) including the -1 values found in the univariate analysis of market values (though they would not plot on a log scale even if included).
 
@@ -287,36 +278,13 @@ The plot above, with its linear regression line, shows a clear positive relation
 cor(cleanCEO$mktval, cleanCEO$salary)
 ```
 
-# REVISIT THIS SECTION****
+### Salary Versus Profit
 
-We group the data into different bins using market values and analyse the salary statistics for these bins. This will help
-
-```{r}
-#mktval_bins <- cut(cleanCEO$mktval/1000,
-#                        c(0,1,2,5,10,20,60))
-#summary(mktval_bins)
-```
-
-```{r}
-#salary_median_by_mktval = by(cleanCEO$salary/1000, mktval_bins, median)
-
-#boxplot(cleanCEO$salary ~ mktval_bins,
-#     main = "Plot of median salary by market value",
-#     ylab = "Median Salary in $ millions",
-#     xlab = "Marketvalue in $ billions")
-```
-These plots further strengthen our assessment of the positive relationship between salary and market values (proxy for company performance).
-
-### Bivariate Analysis of Salary and Profit
-
-Profit is another indicator of company performance. We shall explore if there 
-is a relationship between company profit and CEO salaries.
-
-Seeing the high clustering of profit data in the scatterplot matrix, we were tempted to plot the log of profits against salary to look for a relationship. However, due to the presence of 10 negative profit values, we decided against log values as they remove negative profits from the analysis.
+High clustering of profit data in the scatterplot matrix tempted us to plot a log transformation of profits against salary to look for a relationship. However, due to the presence of 10 negative profit values, we decided against a transformation.
 
 Instead, we grouped the profit data to see if salaries for CEOs showed a trend across profit bins.
 
-Histogram analysis of profits done earlier led us to create a bin for negative profits. We created two more bins of profits in the ranges of \$0 to \$125 million and \$125 to $250 million. Finally, we created another bin of values greater than \$250 million to bundle higher values of profit together.
+The histogram analysis of profits, earlier, led us to create a bin for negative profits. We created two more bins of profits in the ranges of \$0 to \$125 million and \$125 to $250 million. Finally, we created another bin of values greater than \$250 million to bundle higher values of profit together.
 
 ```{r}
 profit_bin = cut(cleanCEO$profits, breaks = c(-500,0,125,250, Inf), labels = 
@@ -330,26 +298,23 @@ boxplot(salary/1000 ~ profit_bin, data = cleanCEO, cex.axis = .7,
         ylab = "Salary (million dollars)",
         xlab = "Profit (million dollars)")
 ```
-From the graph above, we notice an upward trend in median salary with increasing profits in the realm of positive profits . There are some outliers with high salaries in the zero to $250 million bucket. The wider range of salaries in the \$0 to \$250 million as well as greater than \$250 million bucket is also noticeable. 
 
-It is also interesting to note that CEOs in companies with negative profits did not get paid the lowest. Infact, the median value in that bucket is slightly higher than the \$0 to $250 million bucket.
+From the graph above, we notice an upward trend in median salary with increasing profits, for all positive profits . There are some outliers with high salaries in the zero to $250 million bucket. The wider range of salaries in the \$0 to \$250 million as well as greater than \$250 million bucket is also noticeable. 
+
+It is also interesting to note that CEOs in companies with negative profits did not get paid the lowest. In fact, the median value in that bucket is slightly higher than the \$0 to $250 million bucket.
 
 ```{r}
 cor(cleanCEO$salary, cleanCEO$profits, use = "complete.obs")
 ```
-The correlation value of 0.39 above does show a somewhat positive correlation.
+The correlation value of 0.39 indicates a positive, moderate, correlation.
 
-## Analysis of Secondary Variables
+### Other Influences on Salary
 
-In this section, we analyze the impact of the remaining variables on our primary variables of interest, namely salary, market value and profits.
-
-### Secondary Variable Effects on CEO Salary
-
-We look at the influence of the secondary variables on the CEO salary.
+This section looks beyond the company performance variables of profits and market value in relation to salary. We seek to find the extent to which other variables relate to salary, which could help make clearer the primary relationship with company performance.
 
 #### CEO Tenure Versus Salary
 
-The variable ceoten captures the number of years of service as CEO. The data is reported as integers and ranges from  0 to 37. 75% of the values are concentrated in the first one third of the overall tenure spread. This clustering makes scatter plots less informative. Therefore to analyse the influence of ceo tenure on the primary variables, we group them into bins. Fifty percent of the tenure values are below 6 years and therefore we create two bins in this range to better understand the data. 
+The variable ceoten captures the number of years of service as CEO. 75% of the values are concentrated in the first one third of the overall tenure spread. This clustering makes scatter plots less informative. Therefore to analyse the influence of ceo tenure on the primary variables, we group them into bins. Fifty percent of the tenure values are below 6 years and therefore we create two bins in this range to better understand the data. 
 
 ```{r}
 ceoten_bins <- cut(cleanCEO$ceoten,
@@ -362,7 +327,7 @@ ceoten_bins <- cut(cleanCEO$ceoten,
 summary(ceoten_bins)
 ```
 
-We create a boxplot of salary for the various tenure groups. The y axis has been limited to salary of \$2.5 millions.  
+We create a boxplot of salary for the various tenure groups. The y axis has been limited to salary of \$2.5 million.  
 ```{r}
 boxplot(cleanCEO$salary/1000~ ceoten_bins,
      main = "Plot of CEO Salary by CEO Tenure",
@@ -388,7 +353,7 @@ comten_bins <- cut(cleanCEO$comten,
 summary(comten_bins)
 ```
 
-We create a boxplot of salary for the various tenure groups. The y axis has been limited to salary of \$2.5 million. 
+We create a boxplot of salary for the various tenure groups. The y-axis has been limited to salary of \$2.5 million. 
 
 ```{r}
 boxplot(cleanCEO$salary/1000~ comten_bins,
@@ -428,7 +393,7 @@ boxplot(cleanCEO$salary/1000~ age_bins,
 For age in range 40 to 70 years, the median salary shows an increasing trend with age. The lower median salary for the highest age bin agrees with the same median for the highest company tenure bin.
 
 
-### Secondary Variable Effects on Market Value
+### Other Influences on Market Value
 
 We analyse the impact of secondary variables on market value. Due to the large range of market values and clustering at the lower level values, we perform grouping on the market value variable. Due to the shape of the market value distribution we have more bins at the lower end of the market value spectrum. 
 
@@ -449,9 +414,9 @@ boxplot(cleanCEO$comten ~ mktval_bins,
      xlab = "Market Value (billion dollars")
 ```
 
-The companies in different market value ranges tend to behave slightly differently. For companies with a market value below \$2 billion, the median tenure is around 20 years. For companies with market values in \$2 billion to $10 billion, the median tenure is around 26 years. The median company tenure is closer to 30 years for companie with market values above \$10 billion.
+The companies in different market value ranges tend to behave slightly differently. For companies with a market value below \$2 billion, the median tenure is around 20 years. For companies with market values in \$2 billion to $10 billion, the median tenure is around 26 years. The median company tenure is closer to 30 years for companies with market values above \$10 billion.
 
-#### Company Age Versus Market Value
+#### CEO Age Versus Market Value
 
 ```{r}
 boxplot(cleanCEO$age ~ mktval_bins,
@@ -460,9 +425,11 @@ boxplot(cleanCEO$age ~ mktval_bins,
      xlab = "Market Value (billion dollars)")
 ```
 
-The median age of CEOs appear to increase with increase in market value of the company. The exception is out group with the largest market value, which has the lowest median age.
+The median age of CEOs appear to increase with increase in market value of the company. The exception is the group with the largest market value, which has the lowest median age.
 
-### Secondary Variable Effects on Profit
+### Other Influences on Profit
+
+As with the previous two sections, this section assesses what other variables might influence profit, which would help understand better profit's primary relationship with salary.
 
 #### CEO Age Versus Profit
 
@@ -477,6 +444,7 @@ boxplot(age ~ profit_bin, data = cleanCEO, cex.axis = .7,
 The graph above shows a very slight increasing trend in median age of CEOs with profit when profit is positive. But since most of our profits are in the \$0 to $125 million range, the wide variablity of in this range age shouldn't be used to draw conclusions. 
 
 #### Company Tenure Versus Profit
+
 ```{r}
 boxplot(comten ~ profit_bin, data = cleanCEO, cex.axis = .7,
         main = "Company Tenure by Profit",
@@ -484,22 +452,21 @@ boxplot(comten ~ profit_bin, data = cleanCEO, cex.axis = .7,
         xlab = "Profit (million dollars)")
 ```
 
-From the graph above, we do see an increasing trend in median company tenure as profit increases. This is  prominent in companies with very high profits. One could argue that the number of years the CEO has been in a company does have a relationship with very high company profit. Also, companies with negative profits also show to have CEOs with the lowest company tenure.
+From the graph above, we see an increasing trend in median company tenure as profit increases. This is prominent in companies with very high profits. One could argue that the number of years the CEO has been in a company does have a relationship with high company profit. Also, companies with negative profits also show to have CEOs with the lowest company tenure.
 
 #### CEO Tenure Versus Profit
 ```{r}
-
 boxplot(ceoten ~ profit_bin, data = cleanCEO, cex.axis = .7,
         main = "CEO Tenure by Profit",
         ylab = "CEO Tenure (years)",
         xlab = "Profit (million dollars)")
 ```
-From the graph above, median CEO tenure seems to have a very slight decreasing trend with profit increase. It is interesting to note that companies with high profits have the lowest median CEO tenure, even a bit lower than compnies with negative profits. This may indicate a slightly high CEO turnover at companies with higher profits.
 
+From the graph above, median CEO tenure seems to have a very slight decreasing trend with profit increase. It is interesting to note that companies with high profits have the lowest median CEO tenure, even a bit lower than compnies with negative profits. This may indicate a slightly high CEO turnover at companies with higher profits.
 
 ## Confounding Effects
 
-We have used profits and market values as proxy for company performance. We have explored the relationship between these individual variables and salary. However, the two variables themselves exhibit a positive relationship, as seen in the plot below. Therefore, at least some of the positive relationship of market value with salary may be explained by profits.
+We have used profits and market values as proxies for company performance. We have explored the relationship between these individual variables and salary. However, the two variables themselves exhibit a positive relationship, as seen in the plot below. Therefore, at least some of the positive relationship of market value with salary may be explained by profits, and the same is true in where some of the positive relationship of profit with salary may be explained by market value. 
 
 ```{r}
 boxplot(cleanCEO$profits ~ mktval_bins,
@@ -508,12 +475,16 @@ boxplot(cleanCEO$profits ~ mktval_bins,
         ylab = "Company Profit (million dollars)")
 ```
 
-### Missing values, coding errors etc.
+Additionally, as seen in the section "Age Versus Salary," for 90% of the age data, or from 40 to 70 years, the median salary increases with age. Except for the 6 highest market values, median age shows an increase with market value. Therefore, at least some of the relationship between market value and salary is explained by CEO age.
 
-In addition to the coding error found in market value and profits, where several data points were coded as -1, there is another apparent error in the data.
+### Missing Values, Coding Errors, Etc.
 
-For two data points, the company tenure is less than the CEO tenure. Since these two data points did not change the results of our analysis, we have left them in our dataset. 
+In addition to the coding error found in market value and profits, where several data points were coded as -1, there is another apparent error in the data. For two data points, the company tenure is less than the CEO tenure. Since these two data points did not change the results of our analysis, we left them in our dataset. 
 
 ## Conclusion
+
+An exploratory analysis of the CEO dataset was insightful in understanding the variables and establishing some preliminary relationships between the variables in the dataset. Some behaviors we found were positive skews in salary, market value, profits, and CEO tenure, as well as a negative skew in age. A sharp drop in frequency as well as data clustering were also prominent in the histograms for market value and profits. Outliers were present in the salary, market value, and profit variables. Of the key relationship variables, market value showed most data below $5 billion, profit data was mostly below \$250 million, and most CEO salaries were below \$1.4 million. Larger companies, in terms of market value, tend to have more CEOs who attended graduate school. Overall median salaries did not change based on whether CEOs attended college.
+
+Company performance, in the form of profit and market value, does appear to hold a positive relationship with CEO salary. As both profit and market value increase, salary generally increases as well. However, the relationships appear to be non-linear and, with correlations only around 0.4, vary widely from CEO to CEO. As profit and market value have a positive relationship amongst themselves, it is not yet clear whether one drives CEO salary more than the other. Across the dataset, higher age is associated with higher median salaries and market values. Therefore, age might explain some of the positive relationship between salary and market value. In other relationships, a clear influence on profit is company tenure of CEOs. The longer a CEO is with a company, the higher the profits the company tends to show. A similar, yet less clear, relationship held for market value, but CEO’s with highest company tenure did not to make the highest salaries. From 0 to 10 years, CEO tenure and median salary show a positive relationship, while after 10 years, median salary levels off with increases CEO tenure. Companies with the highest profits have the lowest median CEO tenure yet companies with the longest median company tenures have the highest profits.
 
 
